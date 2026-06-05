@@ -1,0 +1,1 @@
+gcc tdas/*.c Proyecto-Matico.c -Wno-unused-result -o Proyecto-Matico
