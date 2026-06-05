@@ -16,7 +16,7 @@
   ### Compilación
   Usa el siguiente comando en la terminal para compilar el programa junto con las librerías de TDAs:
    ````
-   gcc tdas/*.c Proyecto-Matico.c -Wno-unused-result -o Proyecto-Matico
+   gcc tdas/*.c main.c -Wno-unused-result -o Proyecto-Matico
    ````
 
    ### Ejecución
