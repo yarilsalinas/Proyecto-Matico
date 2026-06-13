@@ -46,8 +46,21 @@ void mostrarMenuPrincipal() {
   puts("5) Crear playlists");
   puts("6) DJ Matico");
   puts("7) Escribir estado de ánimo y recibir recomendaciones");
-  puts("8) Agregar ´No me gusta´");
+  puts("8) Agregar ´No me gusta´ o ´Me gusta´");
   puts("9) Salir");
+}
+
+void menuMeGusta(){
+  limpiarPantalla();
+  puts("=====================");
+  puts("Seleccione categoria ");
+  puts("=====================");
+  
+  puts("1) Cancion");
+  puts("2) Artista");
+  puts("3) Album");
+
+  
 }
 
 int main(){
@@ -74,6 +87,7 @@ int main(){
     case '7':  
       break;
     case '8':
+      menuMeGusta();
       break;
     }    
     presioneTeclaParaContinuar(); // opcion 9
