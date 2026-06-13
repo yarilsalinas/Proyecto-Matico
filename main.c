@@ -5,6 +5,34 @@
 #include "tdas/extra.h"
 #include <string.h>
 
+//---estructuras---
+//-----------------
+typedef struct{
+char ID [10];
+char Nombre [10];
+List *listaArtistas;
+char album [10];
+int entonacion;
+int meGusta;
+} cancion;
+//-----------------
+typedef struct{
+char NombreArtista [10];
+List *listaCanciones;
+List *listaAlbum;
+int entonacion;
+int meGusta;
+} artista;
+//-----------------
+typedef struct{
+char NombreAlbum [10];
+char artistaPrincipal [10];
+List *ListaCanciones;
+int entonacion;
+int meGusta;
+} album;
+//-----------------
+  
 void mostrarMenuPrincipal() {
   limpiarPantalla();
   puts("==========================================");
