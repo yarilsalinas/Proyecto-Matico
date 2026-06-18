@@ -8,16 +8,16 @@
 //---estructuras---
 //-----------------
 typedef struct{
-char ID [10];
-char Nombre [10];
+char ID [100];
+char Nombre [100];
 List *listaArtistas;
-char album [10];
+char album [100];
 int entonacion;
 int meGusta;
 } cancion;
 //-----------------
 typedef struct{
-char NombreArtista [10];
+char NombreArtista [100];
 List *listaCanciones;
 List *listaAlbum;
 int entonacion;
@@ -25,8 +25,8 @@ int meGusta;
 } artista;
 //-----------------
 typedef struct{
-char NombreAlbum [10];
-char artistaPrincipal [10];
+char NombreAlbum [100];
+char artistaPrincipal [100];
 List *ListaCanciones;
 int entonacion;
 int meGusta;
@@ -52,15 +52,34 @@ void mostrarMenuPrincipal() {
 
 void menuMeGusta(){
   limpiarPantalla();
-  puts("=====================");
-  puts("Seleccione categoria ");
-  puts("=====================");
+  char opcion;
+  do{
+    puts("=====================");
+    puts("Seleccione categoria ");
+    puts("=====================");
   
-  puts("1) Cancion");
-  puts("2) Artista");
-  puts("3) Album");
+    puts("1) Cancion");
+    puts("2) Artista");
+    puts("3) Album");
+    puts("4) Volver al menu principal");
 
-  
+    printf("Ingrese su opción: ");
+    scanf(" %c", &opcion);
+    
+    switch (opcion) {
+    case '1':
+      break;
+    case '2':
+      break;
+    case '3':  
+      break;
+    case '4':  
+      break;
+    }    
+    if (opcion != '4') {
+        presioneTeclaParaContinuar();
+    }
+    }while (opcion != '4');
 }
 
 int main(){
@@ -90,7 +109,9 @@ int main(){
       menuMeGusta();
       break;
     }    
-    presioneTeclaParaContinuar(); // opcion 9
+    if (opcion != '9') {
+        presioneTeclaParaContinuar();
+    }
 
   } while (opcion != '9');
 
