@@ -32,7 +32,11 @@ int entonacion;
 int meGusta;
 } album;
 //-----------------
-  
+typedef struct{
+char NombreUsuario[100];
+List *ListaAlbumes;
+} Usuario;
+
 void mostrarMenuPrincipal() {
   limpiarPantalla();
   puts("==========================================");
@@ -46,8 +50,9 @@ void mostrarMenuPrincipal() {
   puts("5) Crear playlists");
   puts("6) DJ Matico");
   puts("7) Escribir estado de ánimo y recibir recomendaciones");
-  puts("8) Agregar ´No me gusta´ o ´Me gusta´");
-  puts("9) Salir");
+  puts("8) Crear Usuario");
+  puts("9) Agregar ´No me gusta´ o ´Me gusta´");
+  puts("10) Salir");
 }
 
 void menuMeGusta(){
@@ -82,6 +87,10 @@ void menuMeGusta(){
     }while (opcion != '4');
 }
 
+
+void crear
+
+
 int main(){
   char opcion;
   do {
@@ -108,12 +117,14 @@ int main(){
     case '8':
       menuMeGusta();
       break;
+    case '9':
+      crearUsuario();
     }    
-    if (opcion != '9') {
+    if (opcion != '10') {
         presioneTeclaParaContinuar();
     }
 
-  } while (opcion != '9');
+  } while (opcion != '10');
 
   return 0;
 }
