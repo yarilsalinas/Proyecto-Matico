@@ -5,6 +5,8 @@
 #include "tdas/extra.h"
 #include <string.h>
 
+List *listaUsuarios = NULL;
+
 //---estructuras---
 //-----------------
 typedef struct{
@@ -88,7 +90,47 @@ void menuMeGusta(){
 }
 
 
-void crear
+void crearUsuario() {
+  limpiarPantalla();
+  puts("==========================================");
+  puts("            Crear nuevo usuario           ");
+  puts("==========================================");
+
+  if (listaUsuarios == NULL)
+    listaUsuarios = list_create();
+
+  Usuario *nuevoUsuario = (Usuario *)malloc(sizeof(Usuario));
+  if (nuevoUsuario == NULL) {
+    puts("Error: no se pudo reservar memoria para el usuario.");
+    return;
+  }
+
+  printf("Ingrese nombre de usuario: ");
+  scanf(" %99[^\n]", nuevoUsuario->NombreUsuario);
+
+  // Verificar que el nombre no esté vacío
+  if (strlen(nuevoUsuario->NombreUsuario) == 0) {
+    puts("Error: el nombre de usuario no puede estar vacío.");
+    free(nuevoUsuario);
+    return;
+  }
+
+  // Verificar que el usuario no exista ya
+  Usuario *u = (Usuario *)list_first(listaUsuarios);
+  while (u != NULL) {
+    if (strcmp(u->NombreUsuario, nuevoUsuario->NombreUsuario) == 0) {
+      puts("Error: ya existe un usuario con ese nombre.");
+      free(nuevoUsuario);
+      return;
+    }
+    u = (Usuario *)list_next(listaUsuarios);
+  }
+
+  nuevoUsuario->ListaAlbumes = list_create();
+  list_pushBack(listaUsuarios, nuevoUsuario);
+
+  printf("Usuario '%s' creado exitosamente.\n", nuevoUsuario->NombreUsuario);
+}
 
 
 int main(){
@@ -115,10 +157,10 @@ int main(){
     case '7':  
       break;
     case '8':
-      menuMeGusta();
+      crearUsuario();
       break;
     case '9':
-      crearUsuario();
+      menuMeGusta();
     }    
     if (opcion != '10') {
         presioneTeclaParaContinuar();
