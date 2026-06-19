@@ -4,8 +4,7 @@
 #include "tdas/heap.h"
 #include "tdas/extra.h"
 #include <string.h>
-
-List *listaUsuarios = NULL;
+#include <time.h> //nuevo
 
 //---estructuras---
 //-----------------
@@ -15,7 +14,10 @@ char Nombre [100];
 List *listaArtistas;
 char album [100];
 int entonacion;
+int emocion; //nuevo
 int meGusta;
+List *cancionesCompatibles; //nuevo
+int visitado; //nuevo
 } cancion;
 //-----------------
 typedef struct{
@@ -39,10 +41,28 @@ char NombreUsuario[100];
 List *ListaAlbumes;
 } Usuario;
 
+List *listaUsuarios = NULL;
+List *catalogoGlobalCanciones = NULL; //nuevo
+cancion *cancionActualDJ = NULL; //nuevo
+List *colaReproduccionDJ = NULL; //nuevo
+
+// ==========================================
+// 3. PROTOTIPOS DE FUNCIONES
+// ==========================================
+void mostrarMenuPrincipal(); 
+void menuMeGusta();
+void crearUsuario();
+void generarConexionesDelGrafo(); //nuevo
+void cargarCSV(); //nuevo
+void limpiarVisitadosDJ(); //nuevo
+void generarSecuenciaBFS(); //nuevo
+void menuDjMatico(); //nuevo
+
+
 void mostrarMenuPrincipal() {
   limpiarPantalla();
   puts("==========================================");
-  puts(" MoodTico Gestión y Recomendación Musical ");
+  puts(" MoodTico Gestion y Recomendacion Musical ");
   puts("==========================================");
 
   puts("1) Cargar CSV");
@@ -51,9 +71,9 @@ void mostrarMenuPrincipal() {
   puts("4) Reproducir");
   puts("5) Crear playlists");
   puts("6) DJ Matico");
-  puts("7) Escribir estado de ánimo y recibir recomendaciones");
+  puts("7) Escribir estado de animo y recibir recomendaciones");
   puts("8) Crear Usuario");
-  puts("9) Agregar ´No me gusta´ o ´Me gusta´");
+  puts("9) Agregar No me gusta o Me gusta");
   puts("10) Salir");
 }
 
@@ -132,42 +152,305 @@ void crearUsuario() {
   printf("Usuario '%s' creado exitosamente.\n", nuevoUsuario->NombreUsuario);
 }
 
+void generarConexionesDelGrafo() {
+    if (catalogoGlobalCanciones == NULL) return;
+    int total = 0;
+    cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
+    while (c != NULL) {
+        total++;
+        c = (cancion *)list_next(catalogoGlobalCanciones);
+    }
+    cancion **arreglo = (cancion **)malloc(total * sizeof(cancion *));
+    int i = 0;
+    c = (cancion *)list_first(catalogoGlobalCanciones);
+    while (c != NULL) {
+        arreglo[i] = c;
+        i++;
+        c = (cancion *)list_next(catalogoGlobalCanciones);
+    }
+    for (int j = 0; j < total; j++) {
+        for (int k = 0; k < total; k++) {
+            if (j != k && arreglo[j]->emocion == arreglo[k]->emocion) {
+                list_pushBack(arreglo[j]->cancionesCompatibles, arreglo[k]);
+            }
+        }
+    }
 
+    free(arreglo);
+    puts("Grafo de DJ Matico generado exitosamente basado en emociones.");
+}
+
+void cargarCSV() {
+    if (catalogoGlobalCanciones == NULL) {
+        catalogoGlobalCanciones = list_create();
+    }
+    FILE *archivo = fopen("canciones.csv", "r");
+    if (archivo == NULL) {
+        puts("\n[Error] No se pudo encontrar 'canciones.csv'. Asegurate de que este en la misma carpeta.");
+        return;
+    }
+    char linea[1024];
+    int primeraLinea = 1;
+    while (fgets(linea, sizeof(linea), archivo) != NULL) {
+        if (primeraLinea) {
+            primeraLinea = 0;
+            continue; 
+        }
+        linea[strcspn(linea, "\r\n")] = 0;
+        char *id = strtok(linea, ",");
+        char *nombre = strtok(NULL, ",");
+        char *artista = strtok(NULL, ",");
+        char *album = strtok(NULL, ",");
+        char *emocion_str = strtok(NULL, ",");
+        if (id == NULL || nombre == NULL || artista == NULL || album == NULL || emocion_str == NULL) {
+            continue; 
+        }
+        cancion *nuevaCancion = (cancion *)malloc(sizeof(cancion));
+        nuevaCancion->listaArtistas = list_create();
+
+        nuevaCancion->cancionesCompatibles = list_create(); 
+
+        nuevaCancion->visitado = 0;
+
+        nuevaCancion->meGusta = 1;
+
+        strcpy(nuevaCancion->ID, id);
+
+        strcpy(nuevaCancion->Nombre, nombre);
+
+        strcpy(nuevaCancion->album, album);
+
+        nuevaCancion->emocion = atoi(emocion_str);
+
+        char *nombreArtista = (char *)malloc(strlen(artista) + 1);
+        
+        strcpy(nombreArtista, artista);
+
+        list_pushBack(nuevaCancion->listaArtistas, nombreArtista);
+
+        list_pushBack(catalogoGlobalCanciones, nuevaCancion);
+    }
+
+    fclose(archivo);
+  
+    generarConexionesDelGrafo();
+    
+    puts("\n[EXITO] Las canciones se cargaron y el Grafo del DJ esta listo para funcionar.");
+}
+
+void limpiarVisitadosDJ() {
+    if (catalogoGlobalCanciones == NULL) return;
+    
+    cancion *actual = (cancion *)list_first(catalogoGlobalCanciones);
+    while (actual != NULL) {
+        actual->visitado = 0;
+        actual = (cancion *)list_next(catalogoGlobalCanciones);
+    }
+}
+void generarSecuenciaBFS() {
+    if (cancionActualDJ == NULL) {
+        puts("\n[Error] El DJ no sabe por donde empezar. Lanza una cancion al azar primero.");
+        return;
+    }
+    
+    limpiarVisitadosDJ();
+    if (colaReproduccionDJ == NULL) {
+        colaReproduccionDJ = list_create();
+    } else {
+        while (list_first(colaReproduccionDJ) != NULL) {
+            list_popFront(colaReproduccionDJ);
+        }
+    }
+
+    List *colaBFS = list_create();
+    list_pushBack(colaBFS, cancionActualDJ);
+    cancionActualDJ->visitado = 1;
+
+    puts("\n==========================================");
+    puts("      SETLIST GENERADO POR DJ MATICO     ");
+    puts("==========================================");
+
+    while (list_first(colaBFS) != NULL) {
+        cancion *sonando = (cancion *)list_popFront(colaBFS); 
+        printf("-> %s | Album: %s \n", sonando->Nombre, sonando->album);
+        
+        list_pushBack(colaReproduccionDJ, sonando); 
+
+        if (sonando->cancionesCompatibles != NULL) {
+            cancion *vecino = (cancion *)list_first(sonando->cancionesCompatibles);
+            while (vecino != NULL) {
+                if (vecino->visitado == 0) {
+                    vecino->visitado = 1; 
+                    list_pushBack(colaBFS, vecino); 
+                }
+                vecino = (cancion *)list_next(sonando->cancionesCompatibles);
+            }
+        }
+    }
+    puts("==========================================\n");
+    free(colaBFS); 
+}
+
+void menuDjMatico() {
+    limpiarPantalla();
+    int opcionDJ; 
+    do {
+        puts("==========================================");
+        puts("                DJ Matico                 ");
+        puts("==========================================");
+        puts("1) Lanzar cancion al azar");
+        puts("2) Ver cancion actual");
+        puts("3) Armar secuencia musical automatica");
+        puts("4) Siguiente cancion en la cola");
+        puts("5) Cambiar de ambiente musical (Saltar emocion)");
+        puts("6) Volver al menu principal");
+        printf("Ingrese su opcion: ");
+        
+        scanf("%d", &opcionDJ); 
+        
+        switch(opcionDJ) {
+            case 1:
+                if (catalogoGlobalCanciones == NULL || list_first(catalogoGlobalCanciones) == NULL) {
+                    puts("\n[Error] No hay canciones cargadas en el sistema.");
+                } else {
+                    int totalCanciones = 150; 
+                    int indiceAzar = rand() % totalCanciones;
+                    cancionActualDJ = (cancion *)list_first(catalogoGlobalCanciones);
+                    for (int i = 0; i < indiceAzar; i++) {
+                        cancionActualDJ = (cancion *)list_next(catalogoGlobalCanciones);
+                        if (cancionActualDJ == NULL) {
+                            cancionActualDJ = (cancion *)list_first(catalogoGlobalCanciones);
+                            break;
+                        }
+                    }
+                    puts("\n>> [DJ Matico ha lanzado una nueva pista al azar] <<");
+                    printf("Sonando: %s - Artista: %s - Album: %s (Emocion: %d)\n", 
+                           cancionActualDJ->Nombre, 
+                           (char *)list_first(cancionActualDJ->listaArtistas), 
+                           cancionActualDJ->album,
+                           cancionActualDJ->emocion);
+                }
+                break;
+                
+            case 2: 
+                if (cancionActualDJ == NULL) {
+                    puts("\n[DJ Matico] No hay ninguna cancion sonando. Lanza una al azar primero.");
+                } else {
+                    puts("\n--- CANCION ACTUAL ---");
+                    printf("ID: %s\n", cancionActualDJ->ID);
+                    printf("Nombre: %s\n", cancionActualDJ->Nombre);
+                    printf("Album: %s\n", cancionActualDJ->album);
+                    printf("Emocion: %d\n", cancionActualDJ->emocion);
+                }
+                break;
+                
+            case 3:
+                generarSecuenciaBFS();
+                break;
+                
+            case 4:
+                if (colaReproduccionDJ == NULL || list_first(colaReproduccionDJ) == NULL) {
+                    puts("\n[DJ Matico] No hay mas canciones en la cola. ¡Genera un nuevo setlist!");
+                } else {
+                    cancionActualDJ = (cancion *)list_popFront(colaReproduccionDJ);
+                    puts("\n>> [Cambiando de pista...] <<");
+                    printf("Sonando ahora: %s - Album: %s\n", cancionActualDJ->Nombre, cancionActualDJ->album);
+                }
+                break;
+
+            case 5:
+                if (cancionActualDJ == NULL) {
+                    puts("\n[Error] No hay ninguna cancion sonando para cambiar de estilo.");
+                } else {
+                    int emocionRechazada = cancionActualDJ->emocion;
+
+                    if (colaReproduccionDJ != NULL) {
+                        while (list_first(colaReproduccionDJ) != NULL) {
+                            list_popFront(colaReproduccionDJ);
+                        }
+                    }
+                    int totalCanciones = 150;
+                    cancion *nuevaCancion = NULL;
+                    do {
+                        int indiceAzar = rand() % totalCanciones;
+                        nuevaCancion = (cancion *)list_first(catalogoGlobalCanciones);
+                        for (int i = 0; i < indiceAzar; i++) {
+                            nuevaCancion = (cancion *)list_next(catalogoGlobalCanciones);
+                            if (nuevaCancion == NULL) nuevaCancion = (cancion *)list_first(catalogoGlobalCanciones);
+                        }
+                    } while (nuevaCancion->emocion == emocionRechazada); 
+                    
+                    cancionActualDJ = nuevaCancion;
+                    
+                    puts("\n>> [CAMBIO DE VIBRA] <<");
+                    printf("Has rechazado el estilo actual (Emocion %d).\n", emocionRechazada);
+                    printf("Saltando a un nuevo estilo... Sonando: %s (Emocion %d)\n", cancionActualDJ->Nombre, cancionActualDJ->emocion);
+                    puts("\nRecalibrando el algoritmo del DJ...");
+                    generarSecuenciaBFS(); 
+                }
+                break;
+        }
+        
+        if (opcionDJ != 6) {
+            puts("\nPresione Enter para continuar...");
+            getchar(); 
+            while(getchar() != '\n'); 
+            limpiarPantalla();
+        }
+        
+    } while (opcionDJ != 6);
+}
 int main(){
-  char opcion;
+  srand(time(NULL)); //nuevo
+  int opcion; //nuevo 
+  limpiarPantalla();
+    puts("Iniciando componentes de MoodTico...\n");
+    crearUsuario();
+    presioneTeclaParaContinuar();
+    limpiarPantalla();
+    puts("Sincronizando catalogo musical y calibrando motores de recomendacion...");
+    cargarCSV();
+    presioneTeclaParaContinuar();
   do {
     mostrarMenuPrincipal();
-    printf("Ingrese su opción: ");
-    scanf(" %c", &opcion);
+    printf("Ingrese su opcion: ");
+    scanf(" %d", &opcion);
 
     switch (opcion) {
-    case '1':
-      //cargarCSV();
+    case 1:
       break;
-    case '2':
+    case 2:
       break;
-    case '3':  
+    case 3:  
       break;
-    case '4':  
+    case 4:  
       break;
-    case '5':  
+    case 5:  
       break;
-    case '6':  
+    case 6: 
+      menuDjMatico(); 
       break;
-    case '7':  
+    case 7:  
       break;
-    case '8':
+    case 8:
       crearUsuario();
       break;
-    case '9':
+    case 9:
       menuMeGusta();
+      break;
+    case 10: 
+      break;
     }    
-    if (opcion != '10') {
+    if (opcion != 10) {
         presioneTeclaParaContinuar();
     }
 
-  } while (opcion != '10');
+  } while (opcion != 10);
 
   return 0;
 }
-  
+
+
+
+
+
