@@ -5,6 +5,7 @@
 #include "tdas/extra.h"
 #include <string.h>
 #include <time.h> //nuevo
+#include "tdas/map.h" //nuevo
 
 //---estructuras---
 //-----------------
@@ -13,7 +14,6 @@ char ID [100];
 char Nombre [100];
 List *listaArtistas;
 char album [100];
-int entonacion;
 int emocion; //nuevo
 int meGusta;
 List *cancionesCompatibles; //nuevo
@@ -24,7 +24,6 @@ typedef struct{
 char NombreArtista [100];
 List *listaCanciones;
 List *listaAlbum;
-int entonacion;
 int meGusta;
 } artista;
 //-----------------
@@ -32,7 +31,6 @@ typedef struct{
 char NombreAlbum [100];
 char artistaPrincipal [100];
 List *ListaCanciones;
-int entonacion;
 int meGusta;
 } album;
 //-----------------
@@ -45,6 +43,9 @@ List *listaUsuarios = NULL;
 List *catalogoGlobalCanciones = NULL; //nuevo
 cancion *cancionActualDJ = NULL; //nuevo
 List *colaReproduccionDJ = NULL; //nuevo
+Map *mapaCanciones = NULL; //nuevo Mapa
+Map *mapaArtistas = NULL; //nuevo Mapa
+Map *mapaAlbumes = NULL; //nuevo Mapa
 
 // ==========================================
 // 3. PROTOTIPOS DE FUNCIONES
@@ -64,17 +65,15 @@ void mostrarMenuPrincipal() {
   puts("==========================================");
   puts(" MoodTico Gestion y Recomendacion Musical ");
   puts("==========================================");
-
-  puts("1) Cargar CSV");
-  puts("2) Mostrar listas");
-  puts("3) Buscar");
-  puts("4) Reproducir");
-  puts("5) Crear playlists");
-  puts("6) DJ Matico");
-  puts("7) Escribir estado de animo y recibir recomendaciones");
-  puts("8) Crear Usuario");
-  puts("9) Agregar No me gusta o Me gusta");
-  puts("10) Salir");
+  puts("1) Mostrar listas");
+  puts("2) Buscar");
+  puts("3) Reproducir");
+  puts("4) Crear playlists");
+  puts("5) DJ Matico");
+  puts("6) Escribir estado de animo y recibir recommendations");
+  puts("7) Crear Usuario");
+  puts("8) Agregar No me gusta o Me gusta");
+  puts("9) Salir");
 }
 
 void menuMeGusta(){
@@ -177,13 +176,16 @@ void generarConexionesDelGrafo() {
     }
 
     free(arreglo);
-    puts("Grafo de DJ Matico generado exitosamente basado en emociones.");
 }
 
 void cargarCSV() {
     if (catalogoGlobalCanciones == NULL) {
         catalogoGlobalCanciones = list_create();
     }
+    if (mapaCanciones == NULL) mapaCanciones = map_create((int (*)(void *, void *))strcmp); 
+    if (mapaArtistas == NULL)  mapaArtistas = map_create((int (*)(void *, void *))strcmp); 
+    if (mapaAlbumes == NULL)   mapaAlbumes = map_create((int (*)(void *, void *))strcmp);
+
     FILE *archivo = fopen("canciones.csv", "r");
     if (archivo == NULL) {
         puts("\n[Error] No se pudo encontrar 'canciones.csv'. Asegurate de que este en la misma carpeta.");
@@ -228,6 +230,10 @@ void cargarCSV() {
 
         list_pushBack(nuevaCancion->listaArtistas, nombreArtista);
 
+        map_insert(mapaCanciones, nuevaCancion->Nombre, nuevaCancion);
+        map_insert(mapaArtistas, nombreArtista, nuevaCancion);
+        map_insert(mapaAlbumes, nuevaCancion->album, nuevaCancion);
+
         list_pushBack(catalogoGlobalCanciones, nuevaCancion);
     }
 
@@ -235,7 +241,6 @@ void cargarCSV() {
   
     generarConexionesDelGrafo();
     
-    puts("\n[EXITO] Las canciones se cargaron y el Grafo del DJ esta listo para funcionar.");
 }
 
 void limpiarVisitadosDJ() {
@@ -408,7 +413,6 @@ int main(){
     crearUsuario();
     presioneTeclaParaContinuar();
     limpiarPantalla();
-    puts("Sincronizando catalogo musical y calibrando motores de recomendacion...");
     cargarCSV();
     presioneTeclaParaContinuar();
   do {
@@ -417,35 +421,34 @@ int main(){
     scanf(" %d", &opcion);
 
     switch (opcion) {
-    case 1:
-      break;
-    case 2:
-      break;
-    case 3:  
-      break;
-    case 4:  
-      break;
-    case 5:  
-      break;
-    case 6: 
-      menuDjMatico(); 
-      break;
-    case 7:  
-      break;
-    case 8:
-      crearUsuario();
-      break;
-    case 9:
-      menuMeGusta();
-      break;
-    case 10: 
-      break;
+        case 1: // Mostrar listas
+            break;
+        case 2: // Buscar
+            break;
+        case 3: // Reproducir
+            break;
+        case 4: // Crear playlists
+            break;
+        case 5: // DJ Matico
+            menuDjMatico(); 
+            break;
+        case 6: // Estado de ánimo y recomendaciones
+            break;
+        case 7: // Crear Usuario
+            crearUsuario();
+            break;
+        case 8: // Me gusta / No me gusta
+            menuMeGusta();
+            break;
+        case 9: // Salir
+            puts("\nSaliendo de MoodTico.");
+            break;
     }    
-    if (opcion != 10) {
-        presioneTeclaParaContinuar();
+    if (opcion != 9) {
+            presioneTeclaParaContinuar();
     }
 
-  } while (opcion != 10);
+  } while (opcion != 9);
 
   return 0;
 }
