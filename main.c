@@ -71,9 +71,8 @@ void mostrarMenuPrincipal() {
   puts("4) Crear playlists");
   puts("5) DJ Matico");
   puts("6) Escribir estado de animo y recibir recommendations");
-  puts("7) Crear Usuario");
-  puts("8) Agregar No me gusta o Me gusta");
-  puts("9) Salir");
+  puts("7) Agregar No me gusta o Me gusta");
+  puts("8) Salir");
 }
 
 void menuMeGusta(){
@@ -434,21 +433,18 @@ int main(){
             break;
         case 6: // Estado de ánimo y recomendaciones
             break;
-        case 7: // Crear Usuario
-            crearUsuario();
-            break;
-        case 8: // Me gusta / No me gusta
+        case 7:  //megusta y no me gusta
             menuMeGusta();
             break;
-        case 9: // Salir
+        case 8: // Salir
             puts("\nSaliendo de MoodTico.");
             break;
     }    
-    if (opcion != 9) {
+    if (opcion != 8) {
             presioneTeclaParaContinuar();
     }
 
-  } while (opcion != 9);
+  } while (opcion != 8);
 
   return 0;
 }
