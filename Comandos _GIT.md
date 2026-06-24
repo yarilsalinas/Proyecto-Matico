@@ -22,5 +22,5 @@
    ### Ejecución
   Una vez compilado, ejecuta el programa con:
    ````
-  ./Proyecto-Matico.exe
+  ./Proyecto-Matico
    ````
