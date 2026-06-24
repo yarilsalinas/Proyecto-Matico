@@ -60,6 +60,8 @@ void generarSecuenciaBFS(); //nuevo
 void menuDjMatico(); //nuevo
 
 int is_equal_string(void * key1, void * key2) {
+    if (key1 == NULL || key2 == NULL) return 0; 
+
     if (strcmp((char*)key1, (char*)key2) == 0) {
         return 1; 
     }
@@ -182,7 +184,7 @@ void crearUsuario() {
 
   printf("Ingrese nombre de usuario: ");
   scanf(" %99[^\n]", nuevoUsuario->NombreUsuario);
-
+  while(getchar() != '\n');
   if (strlen(nuevoUsuario->NombreUsuario) == 0) {
     puts("Error: el nombre de usuario no puede estar vacío.");
     free(nuevoUsuario);
