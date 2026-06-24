@@ -436,7 +436,7 @@ int main(){
     scanf(" %d", &opcion);
 
     switch (opcion) {
-        case 1: // Mostrar listas
+        case 1: // Mostrar listocas
             break;
         case 2: // Buscar
             break;
