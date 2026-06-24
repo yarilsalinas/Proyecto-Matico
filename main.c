@@ -58,14 +58,7 @@ void cargarCSV(); //nuevo
 void limpiarVisitadosDJ(); //nuevo
 void generarSecuenciaBFS(); //nuevo
 void menuDjMatico(); //nuevo
-// ==========================================
 
-int is_equal_string(void * key1, void * key2) {
-    if (strcmp((char*)key1, (char*)key2) == 0) {
-        return 1; // Son iguales
-    }
-    return 0; // Son diferentes
-}
 
 void mostrarMenuPrincipal() {
   limpiarPantalla();
@@ -83,82 +76,34 @@ void mostrarMenuPrincipal() {
 }
 
 void menuMeGusta(){
-    limpiarPantalla();
-    char opcion;
-    char busqueda[100];
-    int nuevoEstado;
-    do{
-        puts("=====================");
-        puts("Seleccione categoria ");
-        puts("=====================");
-        puts("1) Cancion");
-        puts("2) Artista");
-        puts("3) Album");
-        puts("4) Volver al menu principal");
-        printf("Ingrese su opción: ");
-        scanf(" %c", &opcion);
-        while(getchar() != '\n');
-        if (opcion >= '1' && opcion <= '3') { // es valida opcion
-            do {
-                printf("Ingrese 1 para 'Me Gusta' o -1 para 'No Me Gusta': ");
-                scanf("%d", &nuevoEstado);
-                while(getchar() != '\n');
-                if (nuevoEstado != 1 && nuevoEstado != -1) {
-                    puts("Valor no valido. Por favor intente de nuevo.");
-                }
-            } while (nuevoEstado != 1 && nuevoEstado != -1);
-        }
-        
-        switch (opcion) {
-        case '1':
-            puts("Escriba ID de la cancion:  ");
-            scanf(" %99[^\n]", busqueda);
-            while(getchar() != '\n');
-            cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
-            int encontrada = 0;
-            while (c != NULL) {
-                if (strcmp(c->ID, busqueda) == 0) {
-                    c->meGusta = nuevoEstado;
-                    printf("Cancion '%s' actualizada correctamente.\n", c->Nombre);
-                    encontrada = 1;
-                    break;
-                }
-                c = (cancion *)list_next(catalogoGlobalCanciones);
-            }
-            if (!encontrada) puts("Cancion no encontrada.");
-        break;
-            
-        case '2':
-            puts("Escriba Nombre del artista:  ");
-            scanf(" %99[^\n]", busqueda);
-            while(getchar() != '\n');
-            artista *artistaEncontrado = (artista *)map_search(mapaArtistas, busqueda);
-            if (artistaEncontrado != NULL) {
-                artistaEncontrado->meGusta = nuevoEstado; 
-                printf("Valoracion actualizada para el artista '%s'.\n", busqueda);
-            } else {
-                puts("Artista no encontrado.");
-            }
-        break;
-        case '3':  
-            puts("Escriba Nombre del album: ");
-            scanf(" %99[^\n]", busqueda);
-            while(getchar() != '\n');
-            album *albumEncontrado = (album *)map_search(mapaAlbumes, busqueda);
-            if (albumEncontrado != NULL) {
-                albumEncontrado->meGusta = nuevoEstado; 
-                printf("Valoracion actualizada para el album '%s'.\n", busqueda);
-            } else {
-                puts("Album no encontrado.");
-            }
-        break;
-            
-        case '4': //salir del menu
-        break;
-        }    
-        if (opcion != '4') {
-            presioneTeclaParaContinuar();
-        }
+  limpiarPantalla();
+  char opcion;
+  do{
+    puts("=====================");
+    puts("Seleccione categoria ");
+    puts("=====================");
+  
+    puts("1) Cancion");
+    puts("2) Artista");
+    puts("3) Album");
+    puts("4) Volver al menu principal");
+
+    printf("Ingrese su opción: ");
+    scanf(" %c", &opcion);
+    
+    switch (opcion) {
+    case '1':
+      break;
+    case '2':
+      break;
+    case '3':  
+      break;
+    case '4':  
+      break;
+    }    
+    if (opcion != '4') {
+        presioneTeclaParaContinuar();
+    }
     }while (opcion != '4');
 }
 
@@ -236,10 +181,10 @@ void cargarCSV() {
     if (catalogoGlobalCanciones == NULL) {
         catalogoGlobalCanciones = list_create();
     }
-    if (mapaCanciones == NULL) mapaCanciones = map_create(is_equal_string); 
-    if (mapaArtistas == NULL)  mapaArtistas = map_create(is_equal_string); 
-    if (mapaAlbumes == NULL)   mapaAlbumes = map_create(is_equal_string);
-    
+    if (mapaCanciones == NULL) mapaCanciones = map_create((int (*)(void *, void *))strcmp); 
+    if (mapaArtistas == NULL)  mapaArtistas = map_create((int (*)(void *, void *))strcmp); 
+    if (mapaAlbumes == NULL)   mapaAlbumes = map_create((int (*)(void *, void *))strcmp);
+
     FILE *archivo = fopen("canciones.csv", "r");
     if (archivo == NULL) {
         puts("\n[Error] No se pudo encontrar 'canciones.csv'. Asegurate de que este en la misma carpeta.");
@@ -255,46 +200,62 @@ void cargarCSV() {
         linea[strcspn(linea, "\r\n")] = 0;
         char *id = strtok(linea, ",");
         char *nombre = strtok(NULL, ",");
-        char *artista = strtok(NULL, ",");
-        char *album = strtok(NULL, ",");
+        
+        // SOLUCIÓN AL CONFLICTO: Se cambiaron los nombres de las variables locales
+        char *artista_csv = strtok(NULL, ",");
+        char *album_csv = strtok(NULL, ",");
+        
         char *emocion_str = strtok(NULL, ",");
-        if (id == NULL || nombre == NULL || artista == NULL || album == NULL || emocion_str == NULL) {
+        if (id == NULL || nombre == NULL || artista_csv == NULL || album_csv == NULL || emocion_str == NULL) {
             continue; 
         }
         cancion *nuevaCancion = (cancion *)malloc(sizeof(cancion));
         nuevaCancion->listaArtistas = list_create();
-
         nuevaCancion->cancionesCompatibles = list_create(); 
-
         nuevaCancion->visitado = 0;
-
         nuevaCancion->meGusta = 1;
 
         strcpy(nuevaCancion->ID, id);
-
         strcpy(nuevaCancion->Nombre, nombre);
-
-        strcpy(nuevaCancion->album, album);
-
+        strcpy(nuevaCancion->album, album_csv);
         nuevaCancion->emocion = atoi(emocion_str);
 
-        char *nombreArtista = (char *)malloc(strlen(artista) + 1);
-        
-        strcpy(nombreArtista, artista);
+        char *nombreArtista = (char *)malloc(strlen(artista_csv) + 1);
+        strcpy(nombreArtista, artista_csv);
 
         list_pushBack(nuevaCancion->listaArtistas, nombreArtista);
-
         map_insert(mapaCanciones, nuevaCancion->Nombre, nuevaCancion);
-        map_insert(mapaArtistas, nombreArtista, nuevaCancion);
-        map_insert(mapaAlbumes, nuevaCancion->album, nuevaCancion);
+
+        artista *art = (artista *)map_search(mapaArtistas, artista_csv);
+        if (art == NULL) {
+            art = (artista *)malloc(sizeof(artista));
+            strcpy(art->NombreArtista, artista_csv);
+            art->listaCanciones = list_create();
+            art->listaAlbum = list_create();
+            art->meGusta = 1;
+            
+            map_insert(mapaArtistas, art->NombreArtista, art);
+        }
+        list_pushBack(art->listaCanciones, nuevaCancion);
+
+        album *alb = (album *)map_search(mapaAlbumes, album_csv);
+        if (alb == NULL) {
+            alb = (album *)malloc(sizeof(album));
+            strcpy(alb->NombreAlbum, album_csv);
+            strcpy(alb->artistaPrincipal, artista_csv);
+            alb->ListaCanciones = list_create();
+            alb->meGusta = 1;
+            
+            map_insert(mapaAlbumes, alb->NombreAlbum, alb);
+            list_pushBack(art->listaAlbum, alb);
+        }
+        list_pushBack(alb->ListaCanciones, nuevaCancion);
 
         list_pushBack(catalogoGlobalCanciones, nuevaCancion);
     }
 
     fclose(archivo);
-  
     generarConexionesDelGrafo();
-    
 }
 
 void limpiarVisitadosDJ() {
@@ -459,7 +420,6 @@ void menuDjMatico() {
         
     } while (opcionDJ != 6);
 }
-
 int main(){
   srand(time(NULL)); //nuevo
   int opcion; //nuevo 
