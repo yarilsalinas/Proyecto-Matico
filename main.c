@@ -4,8 +4,8 @@
 #include "tdas/heap.h"
 #include "tdas/extra.h"
 #include <string.h>
-#include <time.h> //nuevo
-#include "tdas/map.h" //nuevo
+#include <time.h> 
+#include "tdas/map.h"
 
 //---estructuras---
 //-----------------
@@ -14,10 +14,10 @@ char ID [100];
 char Nombre [100];
 List *listaArtistas;
 char album [100];
-int emocion; //nuevo
+int emocion;
 int meGusta;
-List *cancionesCompatibles; //nuevo
-int visitado; //nuevo
+List *cancionesCompatibles;
+int visitado;
 } cancion;
 //-----------------
 typedef struct{
