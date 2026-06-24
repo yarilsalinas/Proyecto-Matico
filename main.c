@@ -496,6 +496,61 @@ void menuDjMatico() {
     } while (opcionDJ != 6);
 }
 
+void menuListas() {
+    char opcion;
+    do {
+        limpiarPantalla();
+        puts("=====================");
+        puts("   Mostrar Listas    ");
+        puts("=====================");
+        puts("1) Canciones");
+        puts("2) Artistas");
+        puts("3) Albumes");
+        puts("4) Volver al menu principal");
+        printf("Ingrese su opcion: ");
+        scanf(" %c", &opcion);
+        while(getchar() != '\n');
+        switch (opcion) {
+            case '1':
+                puts("\n--- Lista de Canciones ---");
+                MapPair *parC = map_first(mapaCanciones);
+                while (parC != NULL) {
+                    cancion *c = (cancion *)parC->value;
+                    printf("ID: %s | Nombre: %s | Album: %s\n", c->ID, c->Nombre, c->album);
+                    parC = map_next(mapaCanciones);
+                }
+                break;
+
+            case '2':
+                puts("\n--- Lista de Artistas ---");
+                MapPair *parA = map_first(mapaArtistas);
+                while (parA != NULL) {
+                    artista *a = (artista *)parA->value;
+                    printf("Artista: %s\n", a->NombreArtista);
+                    parA = map_next(mapaArtistas);
+                }
+                break;
+
+            case '3':
+                puts("\n--- Lista de Albumes ---");
+                MapPair *parAl = map_first(mapaAlbumes);
+                while (parAl != NULL) {
+                    album *al = (album *)parAl->value;
+                    printf("Album: %s | Artista: %s\n", al->NombreAlbum, al->artistaPrincipal);
+                    parAl = map_next(mapaAlbumes);
+                }
+                break;
+
+            case '4':
+                break;
+        }
+
+        if (opcion != '4') {
+            presioneTeclaParaContinuar();
+        }
+    } while (opcion != '4');
+}
+
 int main(){
   srand(time(NULL)); //nuevo
   int opcion; //nuevo 
@@ -513,6 +568,7 @@ int main(){
 
     switch (opcion) {
         case 1: // Mostrar listocas
+            menuListas();
             break;
         case 2: // Buscar
             break;
