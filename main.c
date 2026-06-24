@@ -102,6 +102,7 @@ void menuMeGusta(){
             do {
                 printf("Ingrese 1 para 'Me Gusta' o -1 para 'No Me Gusta': ");
                 if (scanf("%d", &nuevoEstado) != 1) {
+                    while(getchar() != '\n'); 
                     nuevoEstado = 0;
                 }
                 if (nuevoEstado != 1 && nuevoEstado != -1) {
@@ -129,33 +130,35 @@ void menuMeGusta(){
             if (!encontrada) puts("Cancion no encontrada.");
         break;
 
-        case '2':
-            puts("Escriba Nombre del artista:  ");
-            scanf(" %99[^\n]", busqueda);
-            while(getchar() != '\n');
+            case '2':
+                puts("Escriba Nombre del artista: ");
+                scanf(" %99[^\n]", busqueda);
+                while(getchar() != '\n');
 
-            artista *artistaEncontrado = (artista *)map_search(mapaArtistas, busqueda);
-            if (artistaEncontrado != NULL) {
-                artistaEncontrado->meGusta = nuevoEstado; 
-                printf("Valoracion actualizada para el artista '%s'.\n", busqueda);
-            } else {
-                puts("Artista no encontrado.");
-            }
-        break;
+                MapPair *parArtista = (MapPair *)map_search(mapaArtistas, busqueda);
+                if (parArtista != NULL) {
+                    artista *artistaEncontrado = (artista *)parArtista->value;
+                    artistaEncontrado->meGusta = nuevoEstado; 
+                    printf("Valoracion actualizada para el artista '%s'.\n", busqueda);
+                } else {
+                    puts("Artista no encontrado.");
+                }
+            break;
 
-        case '3':  
-            puts("Escriba Nombre del album: ");
-            scanf(" %99[^\n]", busqueda);
-            while(getchar() != '\n');
-
-            album *albumEncontrado = (album *)map_search(mapaAlbumes, busqueda);
-            if (albumEncontrado != NULL) {
-                albumEncontrado->meGusta = nuevoEstado; 
-                printf("Valoracion actualizada para el album '%s'.\n", busqueda);
-            } else {
-                puts("Album no encontrado.");
-            }
-        break;
+            case '3':  
+                puts("Escriba Nombre del album: ");
+                scanf(" %99[^\n]", busqueda);
+                getchar();
+                
+                MapPair *parAlbum = (MapPair *)map_search(mapaAlbumes, busqueda);
+                if (parAlbum != NULL) {
+                    album *albumEncontrado = (album *)parAlbum->value;
+                    albumEncontrado->meGusta = nuevoEstado; 
+                    printf("Valoracion actualizada para el album '%s'.\n", busqueda);
+                } else {
+                    puts("Album no encontrado.");
+                }
+            break;
 
         case '4': //salir del menu
         break;
@@ -246,8 +249,10 @@ void cargarCSV() {
         puts("\n[Error] No se pudo encontrar 'canciones.csv'. Asegurate de que este en la misma carpeta.");
         return;
     }
+
     char linea[1024];
     int primeraLinea = 1;
+
     while (fgets(linea, sizeof(linea), archivo) != NULL) {
         if (primeraLinea) {
             primeraLinea = 0;
@@ -256,15 +261,15 @@ void cargarCSV() {
         linea[strcspn(linea, "\r\n")] = 0;
         char *id = strtok(linea, ",");
         char *nombre = strtok(NULL, ",");
-        
-        // SOLUCIÓN AL CONFLICTO: Se cambiaron los nombres de las variables locales
         char *artista_csv = strtok(NULL, ",");
         char *album_csv = strtok(NULL, ",");
-        
         char *emocion_str = strtok(NULL, ",");
+
         if (id == NULL || nombre == NULL || artista_csv == NULL || album_csv == NULL || emocion_str == NULL) {
             continue; 
         }
+
+        // 1. Reservar e inicializar la estructura de la canción
         cancion *nuevaCancion = (cancion *)malloc(sizeof(cancion));
         nuevaCancion->listaArtistas = list_create();
         nuevaCancion->cancionesCompatibles = list_create(); 
@@ -282,32 +287,51 @@ void cargarCSV() {
         list_pushBack(nuevaCancion->listaArtistas, nombreArtista);
         map_insert(mapaCanciones, nuevaCancion->Nombre, nuevaCancion);
 
-        artista *art = (artista *)map_search(mapaArtistas, artista_csv);
-        if (art == NULL) {
+        // 2. Procesamiento del Artista utilizando 'Pair'
+        MapPair *parArtista = (MapPair *)map_search(mapaArtistas, artista_csv);
+        artista *art = NULL;
+
+        if (parArtista == NULL) {
+            // El artista no existe, lo creamos desde cero
             art = (artista *)malloc(sizeof(artista));
             strcpy(art->NombreArtista, artista_csv);
             art->listaCanciones = list_create();
             art->listaAlbum = list_create();
             art->meGusta = 1;      
             map_insert(mapaArtistas, art->NombreArtista, art);
+        } else {
+            // El artista ya existe, extraemos el puntero real desde el valor del Pair
+            art = (artista *)parArtista->value;
         }
         list_pushBack(art->listaCanciones, nuevaCancion);
-        album *alb = (album *)map_search(mapaAlbumes, album_csv);
-        if (alb == NULL) {
+
+        // 3. Procesamiento del Álbum utilizando 'Pair'
+        MapPair *parAlbum = (MapPair *)map_search(mapaAlbumes, album_csv);
+        album *alb = NULL;
+
+        if (parAlbum == NULL) {
+            // El álbum no existe, lo creamos desde cero
             alb = (album *)malloc(sizeof(album));
             strcpy(alb->NombreAlbum, album_csv);
             strcpy(alb->artistaPrincipal, artista_csv);
             alb->ListaCanciones = list_create();
             alb->meGusta = 1;
-            
+
             map_insert(mapaAlbumes, alb->NombreAlbum, alb);
             list_pushBack(art->listaAlbum, alb);
+        } else {
+            // El álbum ya existe, extraemos el puntero real desde el valor del Pair
+            alb = (album *)parAlbum->value;
         }
         list_pushBack(alb->ListaCanciones, nuevaCancion);
+
+        // 4. Agregar la canción al catálogo global general
         list_pushBack(catalogoGlobalCanciones, nuevaCancion);
     }
+
     fclose(archivo);
     generarConexionesDelGrafo();
+    puts("\n[Exito] Archivo 'canciones.csv' cargado correctamente.");
 }
 
 void limpiarVisitadosDJ() {
