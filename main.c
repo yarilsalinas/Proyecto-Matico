@@ -550,6 +550,98 @@ void menuListas() {
         }
     } while (opcion != '4');
 }
+void menuBuscar(){
+    char opcion;
+    char busqueda[100];
+    do{
+        limpiarPantalla();
+        puts("=====================");
+        puts("       Buscar");
+        puts("=====================");
+        puts("1) Buscar Cancion");
+        puts("2) Buscar Artista");
+        puts("3) Buscar Album");
+        puts("4) Volver");
+        printf("Ingrese su opcion: ");
+        scanf(" %c", &opcion);
+        while(getchar() != '\n');
+
+        switch(opcion) {
+
+            case '1': {
+                printf("Ingrese nombre de la cancion: ");
+                scanf(" %99[^\n]", busqueda);
+                while(getchar() != '\n');
+
+                MapPair *par = map_search(mapaCanciones, busqueda);
+                if(par != NULL){
+                    cancion *c = (cancion *)par -> value;
+                    printf("\n ---------- Cancion Encontrada ---------- \n");
+                    printf("ID: %s\n", c -> ID);
+                    printf("ID: %s\n", c -> Nombre);
+                    printf("ID: %s\n", c -> album);
+                    
+                }
+                else{
+                    puts("Cancion no encontrada.");
+                }
+                break;
+            }
+            case '2': {
+                printf("Ingrese nombre del artista: ");
+                scanf(" %99[^\n]", busqueda);
+                while(getchar() != '\n');
+
+                MapPair *par = map_search(mapaArtistas, busqueda);
+                if(par != NULL){
+                    artista *a = (artista *)par -> value;
+                    printf("\n ---------- Artista Encontrado ---------- \n");
+                    printf("ID: %s\n", a -> NombreArtista);
+                    puts("\n Canciones: \n");
+                    cancion *c = (cancion *)list_first(a -> listaCanciones);
+                    while(c != NULL){
+                        printf(" - %s\n", c -> Nombre);
+                        c = (cancion *)list_next(a -> listaCanciones);;
+                    }
+                }
+                else{
+                    puts("Artista no encontrado.");
+                }
+                break;
+            }
+            case '3': {
+                    printf("Ingrese nombre del album: ");
+                    scanf(" %99[^\n]", busqueda);
+                    while(getchar() != '\n');
+
+                    MapPair *par = map_search(mapaAlbumes, busqueda);
+
+                    if(par != NULL) {
+                        album *a = (album *)par->value;
+
+                        printf("\n--- ALBUM ENCONTRADO ---\n");
+                        printf("Album: %s\n", a->NombreAlbum);
+                        printf("Artista principal: %s\n", a->artistaPrincipal);
+
+                        puts("\nCanciones:");
+                        cancion *c = (cancion *)list_first(a->ListaCanciones);
+
+                        while(c != NULL) {
+                            printf("- %s\n", c->Nombre);
+                            c = (cancion *)list_next(a->ListaCanciones);
+                        }
+                    }
+                    else {
+                        puts("Album no encontrado.");
+                    }
+                    break;
+                }
+            }
+            if(opcion != '4'){
+                presioneTeclaParaContinuar();
+            }
+    }while(opcion != '4');
+}
 
 int main(){
   srand(time(NULL)); //nuevo
@@ -571,6 +663,7 @@ int main(){
             menuListas();
             break;
         case 2: // Buscar
+            menuBuscar();
             break;
         case 3: // Reproducir
             break;
