@@ -201,7 +201,7 @@ void cargarCSV() {
         char *id = strtok(linea, ",");
         char *nombre = strtok(NULL, ",");
         
-        // CAMBIO AQUÍ: Nombres cambiados para evitar conflictos con los structs
+        // SOLUCIÓN AL CONFLICTO: Se cambiaron los nombres de las variables locales
         char *artista_csv = strtok(NULL, ",");
         char *album_csv = strtok(NULL, ",");
         
@@ -237,6 +237,7 @@ void cargarCSV() {
             map_insert(mapaArtistas, art->NombreArtista, art);
         }
         list_pushBack(art->listaCanciones, nuevaCancion);
+
         album *alb = (album *)map_search(mapaAlbumes, album_csv);
         if (alb == NULL) {
             alb = (album *)malloc(sizeof(album));
