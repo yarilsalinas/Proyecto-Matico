@@ -404,7 +404,7 @@ void menuDjMatico() {
         printf("Ingrese su opcion: ");
         
         scanf("%d", &opcionDJ); 
-        
+        while(getchar() != '\n');
         switch(opcionDJ) {
             case 1:
                 if (catalogoGlobalCanciones == NULL || list_first(catalogoGlobalCanciones) == NULL) {
