@@ -184,7 +184,6 @@ void crearUsuario() {
 
   printf("Ingrese nombre de usuario: ");
   scanf(" %99[^\n]", nuevoUsuario->NombreUsuario);
-  while(getchar() != '\n');
   if (strlen(nuevoUsuario->NombreUsuario) == 0) {
     puts("Error: el nombre de usuario no puede estar vacío.");
     free(nuevoUsuario);
@@ -466,9 +465,7 @@ void menuDjMatico() {
         }
         
         if (opcionDJ != 6) {
-            puts("\nPresione Enter para continuar...");
-            getchar(); 
-            while(getchar() != '\n'); 
+            presioneTeclaParaContinuar();
             limpiarPantalla();
         }
         
