@@ -112,22 +112,19 @@ void menuMeGusta(){
         }
         switch (opcion) {
         case '1':
-            puts("Escriba ID de la cancion:  ");
+            puts("Escriba Nombre de la cancion:  ");
             scanf(" %99[^\n]", busqueda);
             while(getchar() != '\n');
             
-            cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
-            int encontrada = 0;
-            while (c != NULL) {
-                if (strcmp(c->ID, busqueda) == 0) {
+            MapPair *par = map_search(mapaCanciones, busqueda);
+            if(par != NULL){
+                    cancion *c = (cancion *)par -> value;
                     c->meGusta = nuevoEstado;
                     printf("Cancion '%s' actualizada correctamente.\n", c->Nombre);
-                    encontrada = 1;
                     break;
-                }
-                c = (cancion *)list_next(catalogoGlobalCanciones);
+            } else{
+                puts("Cancion no encontrada.");
             }
-            if (!encontrada) puts("Cancion no encontrada.");
         break;
 
             case '2':
@@ -550,6 +547,7 @@ void menuListas() {
         }
     } while (opcion != '4');
 }
+
 void menuBuscar(){
     char opcion;
     char busqueda[100];
@@ -596,7 +594,7 @@ void menuBuscar(){
                 if(par != NULL){
                     artista *a = (artista *)par -> value;
                     printf("\n ---------- Artista Encontrado ---------- \n");
-                    printf("ID: %s\n", a -> NombreArtista);
+                    printf("Artista: %s\n", a -> NombreArtista);
                     puts("\n Canciones: \n");
                     cancion *c = (cancion *)list_first(a -> listaCanciones);
                     while(c != NULL){
