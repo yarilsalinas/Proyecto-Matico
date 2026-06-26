@@ -52,6 +52,8 @@ List *colaReproduccionDJ = NULL; //nuevo
 Map *mapaCanciones = NULL; //nuevo Mapa
 Map *mapaArtistas = NULL; //nuevo Mapa
 Map *mapaAlbumes = NULL; //nuevo Mapa
+List *colaReproduccion = NULL;     // cola de reproducir
+List *historialCanciones = NULL;    // Pila para reproducir la anterior
 
 // ==========================================
 // 3. PROTOTIPOS DE FUNCIONES
@@ -722,6 +724,78 @@ void menuBuscar(){
     }while(opcion != '4');
 }
 
+void menuReproducir(){
+    List *colaReproduccion = list_create();
+    List *historialCanciones = list_create();
+
+    cancion *actual = NULL;
+    char opcion;
+    char busqueda[100];
+    do{
+        limpiarPantalla();
+        puts("========================");
+        puts("      REPRODUCIR");
+        puts("========================");
+        puts("1) Agregar cancion a la cola");
+        puts("2) Reproducir cancion siguiente");
+        puts("3) Reproducir cancion anterior");
+        puts("4) Ver cola");
+        puts("5) Volver");
+
+        printf("Ingrese su opcion: ");
+        scanf(" %c",&opcion);
+        while(getchar()!='\n');
+
+        switch(opcion){
+            case '1':{
+                printf("Ingrese el nombre de la cancion: ");
+                scanf(" %99[^\n]", busqueda);
+                while(getchar() != '\n');
+
+                MapPair *par = map_search(mapaCanciones, busqueda);
+                if(par != NULL){
+                    cancion *c = (cancion *)par -> value;
+                    list_pushBack(colaReproduccion, c);
+                    printf("Cancion agregada correctamente a la cola\n");
+                }
+                else{
+                    puts("cancion no encontrada");
+                }
+                break;
+            }
+            case '2':{
+                if(list_first(colaReproduccion) == NULL){
+                    puts("La cola esta vacia.");
+                }
+                else{
+                    if(actual != NULL){
+                        list_pushFront(historialCanciones, actual);
+                    }
+                    actual = (cancion *)list_popFront(colaReproduccion);
+                    puts("\n========== REPRODUCIENDO ==========");
+                    printf("Cancion : %s\n",actual->Nombre);
+                    printf("Artista : %s\n",(char *)list_first(actual->listaArtistas));
+                    printf("Album   : %s\n",actual->album);
+                }
+                break;
+            }
+            case '3':{
+                
+            }
+            case '4':{
+                
+            }
+            case '5':{
+                break;
+            }
+        }
+        if(opcion != '5'){
+            puts("Opcion invalida");
+            presioneTeclaParaContinuar();
+        }    
+        }while(opcion != '5');
+}
+
 int main(){
   srand(time(NULL)); //nuevo
   int opcion; //nuevo 
@@ -745,6 +819,7 @@ int main(){
             menuBuscar();
             break;
         case 3: // Reproducir
+            menuReproducir();
             break;
         case 4: // Crear playlists
             crearPlaylist();
