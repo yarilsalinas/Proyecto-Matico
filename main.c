@@ -39,7 +39,13 @@ char NombreUsuario[100];
 List *ListaAlbumes;
 } Usuario;
 
+typedef struct{
+char NombrePlaylist[100];
+List *canciones;
+} Playlist;
+
 List *listaUsuarios = NULL;
+List *listaPlaylists = NULL;
 List *catalogoGlobalCanciones = NULL; //nuevo
 cancion *cancionActualDJ = NULL; //nuevo
 List *colaReproduccionDJ = NULL; //nuevo
@@ -53,11 +59,12 @@ Map *mapaAlbumes = NULL; //nuevo Mapa
 void mostrarMenuPrincipal(); 
 void menuMeGusta();
 void crearUsuario();
-void generarConexionesDelGrafo(); //nuevo
-void cargarCSV(); //nuevo
-void limpiarVisitadosDJ(); //nuevo
-void generarSecuenciaBFS(); //nuevo
-void menuDjMatico(); //nuevo
+void crearPlaylist();
+void generarConexionesDelGrafo();
+void cargarCSV();
+void limpiarVisitadosDJ();
+void generarSecuenciaBFS();
+void menuDjMatico();
 
 int is_equal_string(void * key1, void * key2) {
     if (key1 == NULL || key2 == NULL) return 0; 
@@ -204,6 +211,80 @@ void crearUsuario() {
   list_pushBack(listaUsuarios, nuevoUsuario);
 
   printf("Usuario '%s' creado exitosamente.\n", nuevoUsuario->NombreUsuario);
+}
+
+void crearPlaylist() {
+    limpiarPantalla();
+    puts("==========================================");
+    puts("           Crear nueva playlist           ");
+    puts("==========================================");
+
+    if (mapaCanciones == NULL) {
+        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
+        return;
+    }
+
+    if (listaPlaylists == NULL)
+        listaPlaylists = list_create();
+
+    Playlist *nueva = (Playlist *)malloc(sizeof(Playlist));
+    if (nueva == NULL) {
+        puts("[Error] No se pudo reservar memoria.");
+        return;
+    }
+
+    printf("Ingrese el nombre de la playlist: ");
+    scanf(" %99[^\n]", nueva->NombrePlaylist);
+    while(getchar() != '\n');
+
+    if (strlen(nueva->NombrePlaylist) == 0) {
+        puts("[Error] El nombre no puede estar vacio.");
+        free(nueva);
+        return;
+    }
+
+    Playlist *p = (Playlist *)list_first(listaPlaylists);
+    while (p != NULL) {
+        if (strcmp(p->NombrePlaylist, nueva->NombrePlaylist) == 0) {
+            puts("[Error] Ya existe una playlist con ese nombre.");
+            free(nueva);
+            return;
+        }
+        p = (Playlist *)list_next(listaPlaylists);
+    }
+
+    nueva->canciones = list_create();
+
+    char respuesta = 's';
+    while (respuesta == 's' || respuesta == 'S') {
+        char nombreCancion[100];
+        printf("\nIngrese el nombre de la cancion a agregar: ");
+        scanf(" %99[^\n]", nombreCancion);
+        while(getchar() != '\n');
+
+        MapPair *par = map_search(mapaCanciones, nombreCancion);
+        if (par != NULL) {
+            cancion *c = (cancion *)par->value;
+            list_pushBack(nueva->canciones, c);
+            printf("[OK] '%s' agregada a la playlist.\n", c->Nombre);
+        } else {
+            puts("[Error] Cancion no encontrada. Verifique el nombre.");
+        }
+
+        printf("Desea agregar otra cancion? (s/n): ");
+        scanf(" %c", &respuesta);
+        while(getchar() != '\n');
+    }
+
+    if (list_size(nueva->canciones) == 0) {
+        puts("[Aviso] La playlist quedo vacia y no fue guardada.");
+        free(nueva);
+        return;
+    }
+
+    list_pushBack(listaPlaylists, nueva);
+    printf("\n[Exito] Playlist '%s' creada con %d cancion(es).\n",
+           nueva->NombrePlaylist, list_size(nueva->canciones));
 }
 
 void generarConexionesDelGrafo() {
@@ -666,6 +747,7 @@ int main(){
         case 3: // Reproducir
             break;
         case 4: // Crear playlists
+            crearPlaylist();
             break;
         case 5:
             menuDjMatico(); 
