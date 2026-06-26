@@ -62,6 +62,7 @@ void mostrarMenuPrincipal();
 void menuMeGusta();
 void crearUsuario();
 void crearPlaylist();
+void recomendarPorEstadoDeAnimo();
 void generarConexionesDelGrafo();
 void cargarCSV();
 void limpiarVisitadosDJ();
@@ -287,6 +288,79 @@ void crearPlaylist() {
     list_pushBack(listaPlaylists, nueva);
     printf("\n[Exito] Playlist '%s' creada con %d cancion(es).\n",
            nueva->NombrePlaylist, list_size(nueva->canciones));
+}
+
+void recomendarPorEstadoDeAnimo() {
+    limpiarPantalla();
+    puts("==========================================");
+    puts("   Recomendacion por Estado de Animo     ");
+    puts("==========================================");
+    puts("Estados de animo disponibles:");
+    puts("  1 - Feliz / Energico");
+    puts("  2 - Triste / Melancolico");
+    puts("  3 - Tranquilo / Relajado");
+    puts("==========================================");
+
+    if (catalogoGlobalCanciones == NULL) {
+        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
+        return;
+    }
+
+    int estado;
+    do {
+        printf("Ingrese su estado de animo (1-3): ");
+        if (scanf("%d", &estado) != 1) {
+            while(getchar() != '\n');
+            estado = 0;
+        } else {
+            while(getchar() != '\n');
+        }
+        if (estado < 1 || estado > 3)
+            puts("[Error] Opcion invalida. Ingrese 1, 2 o 3.");
+    } while (estado < 1 || estado > 3);
+
+    puts("\nFiltros opcionales (presione Enter para omitir):");
+    char filtroArtista[100];
+    char filtroAlbum[100];
+
+    printf("Filtrar por artista: ");
+    fgets(filtroArtista, sizeof(filtroArtista), stdin);
+    filtroArtista[strcspn(filtroArtista, "\n")] = '\0';
+
+    printf("Filtrar por album: ");
+    fgets(filtroAlbum, sizeof(filtroAlbum), stdin);
+    filtroAlbum[strcspn(filtroAlbum, "\n")] = '\0';
+
+    printf("\n--- Canciones para el estado de animo %d", estado);
+    if (strlen(filtroArtista) > 0) printf(" | Artista: %s", filtroArtista);
+    if (strlen(filtroAlbum) > 0)   printf(" | Album: %s", filtroAlbum);
+    puts(" ---\n");
+
+    int encontradas = 0;
+    cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
+    while (c != NULL) {
+        if (c->emocion == estado) {
+            char *artista = (char *)list_first(c->listaArtistas);
+
+            int pasaArtista = (strlen(filtroArtista) == 0) ||
+                              (artista != NULL && strcmp(artista, filtroArtista) == 0);
+            int pasaAlbum   = (strlen(filtroAlbum) == 0) ||
+                              (strcmp(c->album, filtroAlbum) == 0);
+
+            if (pasaArtista && pasaAlbum) {
+                printf("- %s | Artista: %s | Album: %s\n",
+                       c->Nombre, artista, c->album);
+                encontradas++;
+            }
+        }
+        c = (cancion *)list_next(catalogoGlobalCanciones);
+    }
+
+    if (encontradas == 0) {
+        puts("[Aviso] No se encontraron canciones con esos filtros.");
+    } else {
+        printf("\nTotal de canciones encontradas: %d\n", encontradas);
+    }
 }
 
 void generarConexionesDelGrafo() {
@@ -828,6 +902,7 @@ int main(){
             menuDjMatico(); 
             break;
         case 6: // Estado de ánimo y recomendaciones
+            recomendarPorEstadoDeAnimo();
             break;
         case 7:
             menuMeGusta();
