@@ -368,7 +368,10 @@ void eliminarPlaylist() {
     p = (Playlist *)list_first(listaPlaylists);
     while (p != NULL) {
         if (strcmp(p->NombrePlaylist, nombrePlaylist) == 0) {
-            list_popCurrent(listaPlaylists);
+            Playlist *eliminada = (Playlist *)list_popCurrent(listaPlaylists);
+            list_clean(eliminada->canciones);
+            free(eliminada->canciones);
+            free(eliminada);
             printf("[OK] Playlist '%s' eliminada.\n", nombrePlaylist);
             return;
         }
