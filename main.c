@@ -64,6 +64,9 @@ void mostrarMenuPrincipal();
 void menuMeGusta();
 void crearUsuario();
 void crearPlaylist();
+void eliminarCancionPlaylist();
+void eliminarPlaylist();
+void menuPlaylist();
 void recomendarPorEstadoDeAnimo();
 void generarConexionesDelGrafo();
 void cargarCSV();
@@ -286,6 +289,132 @@ void crearPlaylist() {
     list_pushBack(listaPlaylists, nueva);
     printf("\n[Exito] Playlist '%s' creada con %d cancion(es).\n",
            nueva->NombrePlaylist, list_size(nueva->canciones));
+}
+
+void eliminarCancionPlaylist() {
+    limpiarPantalla();
+    puts("==========================================");
+    puts("      Eliminar cancion de playlist        ");
+    puts("==========================================");
+
+    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+        puts("[Error] No hay playlists creadas.");
+        return;
+    }
+
+    char nombrePlaylist[100];
+    printf("Ingrese el nombre de la playlist: ");
+    scanf(" %99[^\n]", nombrePlaylist);
+    while(getchar() != '\n');
+
+    Playlist *p = (Playlist *)list_first(listaPlaylists);
+    while (p != NULL) {
+        if (strcmp(p->NombrePlaylist, nombrePlaylist) == 0) break;
+        p = (Playlist *)list_next(listaPlaylists);
+    }
+
+    if (p == NULL) {
+        puts("[Error] Playlist no encontrada.");
+        return;
+    }
+
+    if (list_size(p->canciones) == 0) {
+        puts("[Aviso] La playlist no tiene canciones.");
+        return;
+    }
+
+    puts("\nCanciones en la playlist:");
+    cancion *c = (cancion *)list_first(p->canciones);
+    while (c != NULL) {
+        printf("  - %s\n", c->Nombre);
+        c = (cancion *)list_next(p->canciones);
+    }
+
+    char nombreCancion[100];
+    printf("\nIngrese el nombre de la cancion a eliminar: ");
+    scanf(" %99[^\n]", nombreCancion);
+    while(getchar() != '\n');
+
+    c = (cancion *)list_first(p->canciones);
+    while (c != NULL) {
+        if (strcmp(c->Nombre, nombreCancion) == 0) {
+            list_popCurrent(p->canciones);
+            printf("[OK] '%s' eliminada de la playlist '%s'.\n", nombreCancion, p->NombrePlaylist);
+            return;
+        }
+        c = (cancion *)list_next(p->canciones);
+    }
+
+    puts("[Error] Cancion no encontrada en la playlist.");
+}
+
+void eliminarPlaylist() {
+    limpiarPantalla();
+    puts("==========================================");
+    puts("           Eliminar playlist              ");
+    puts("==========================================");
+
+    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+        puts("[Error] No hay playlists creadas.");
+        return;
+    }
+
+    puts("Playlists disponibles:");
+    Playlist *p = (Playlist *)list_first(listaPlaylists);
+    while (p != NULL) {
+        printf("  - %s (%d cancion(es))\n", p->NombrePlaylist, list_size(p->canciones));
+        p = (Playlist *)list_next(listaPlaylists);
+    }
+
+    char nombrePlaylist[100];
+    printf("\nIngrese el nombre de la playlist a eliminar: ");
+    scanf(" %99[^\n]", nombrePlaylist);
+    while(getchar() != '\n');
+
+    p = (Playlist *)list_first(listaPlaylists);
+    while (p != NULL) {
+        if (strcmp(p->NombrePlaylist, nombrePlaylist) == 0) {
+            list_popCurrent(listaPlaylists);
+            printf("[OK] Playlist '%s' eliminada.\n", nombrePlaylist);
+            return;
+        }
+        p = (Playlist *)list_next(listaPlaylists);
+    }
+
+    puts("[Error] Playlist no encontrada.");
+}
+
+void menuPlaylist() {
+    int opcion;
+    do {
+        limpiarPantalla();
+        puts("==========================================");
+        puts("             Playlists                    ");
+        puts("==========================================");
+        puts("1) Crear playlist");
+        puts("2) Eliminar cancion de playlist");
+        puts("3) Eliminar playlist");
+        puts("4) Volver al menu principal");
+        printf("Ingrese su opcion: ");
+        scanf(" %d", &opcion);
+        while(getchar() != '\n');
+
+        switch(opcion) {
+            case 1:
+                crearPlaylist();
+                break;
+            case 2:
+                eliminarCancionPlaylist();
+                break;
+            case 3:
+                eliminarPlaylist();
+                break;
+            case 4:
+                break;
+        }
+        if (opcion != 4)
+            presioneTeclaParaContinuar();
+    } while (opcion != 4);
 }
 
 void recomendarPorEstadoDeAnimo() {
@@ -960,7 +1089,7 @@ int main(){
             menuReproducir();
             break;
         case 4: 
-            crearPlaylist();
+            menuPlaylist();
             break;
         case 5:
             menuDjMatico(); 
