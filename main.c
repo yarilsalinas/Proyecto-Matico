@@ -6,7 +6,6 @@
 #include <string.h>
 #include <time.h> 
 #include "tdas/map.h"
-// a
 //---estructuras---
 //-----------------
 typedef struct{
@@ -38,23 +37,26 @@ typedef struct{
 char NombreUsuario[100];
 List *ListaAlbumes;
 } Usuario;
-
+//-----------------
 typedef struct{
 char NombrePlaylist[100];
 List *canciones;
 } Playlist;
-
+//-----------------
 List *listaUsuarios = NULL;
 List *listaPlaylists = NULL;
-List *catalogoGlobalCanciones = NULL; //nuevo
-cancion *cancionActualDJ = NULL; //nuevo
-List *colaReproduccionDJ = NULL; //nuevo
-Map *mapaCanciones = NULL; //nuevo Mapa
-Map *mapaArtistas = NULL; //nuevo Mapa
-Map *mapaAlbumes = NULL; //nuevo Mapa
-List *colaReproduccion = NULL;     // cola de reproducir
-List *historialCanciones = NULL;    // Pila para reproducir la anterior
-
+List *catalogoGlobalCanciones = NULL; 
+List *colaReproduccionDJ = NULL;
+//-----------------
+cancion *cancionActualDJ = NULL; 
+//-----------------
+Map *mapaCanciones = NULL; 
+Map *mapaArtistas = NULL; 
+Map *mapaAlbumes = NULL; 
+//-----------------
+List *colaReproduccion = NULL; 
+List *historialCanciones = NULL;    
+//-----------------
 // ==========================================
 // 3. PROTOTIPOS DE FUNCIONES
 // ==========================================
@@ -68,6 +70,7 @@ void cargarCSV();
 void limpiarVisitadosDJ();
 void generarSecuenciaBFS();
 void menuDjMatico();
+// ==========================================
 
 int is_equal_string(void * key1, void * key2) {
     if (key1 == NULL || key2 == NULL) return 0; 
@@ -222,11 +225,6 @@ void crearPlaylist() {
     puts("           Crear nueva playlist           ");
     puts("==========================================");
 
-    if (mapaCanciones == NULL) {
-        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
-        return;
-    }
-
     if (listaPlaylists == NULL)
         listaPlaylists = list_create();
 
@@ -300,11 +298,6 @@ void recomendarPorEstadoDeAnimo() {
     puts("  2 - Triste / Melancolico");
     puts("  3 - Tranquilo / Relajado");
     puts("==========================================");
-
-    if (catalogoGlobalCanciones == NULL) {
-        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
-        return;
-    }
 
     int estado;
     do {
@@ -441,12 +434,10 @@ void cargarCSV() {
         list_pushBack(nuevaCancion->listaArtistas, nombreArtista);
         map_insert(mapaCanciones, nuevaCancion->Nombre, nuevaCancion);
 
-        // 2. Procesamiento del Artista utilizando 'Pair'
         MapPair *parArtista = (MapPair *)map_search(mapaArtistas, artista_csv);
         artista *art = NULL;
 
         if (parArtista == NULL) {
-            // El artista no existe, lo creamos desde cero
             art = (artista *)malloc(sizeof(artista));
             strcpy(art->NombreArtista, artista_csv);
             art->listaCanciones = list_create();
@@ -454,17 +445,13 @@ void cargarCSV() {
             art->meGusta = 1;      
             map_insert(mapaArtistas, art->NombreArtista, art);
         } else {
-            // El artista ya existe, extraemos el puntero real desde el valor del Pair
             art = (artista *)parArtista->value;
         }
         list_pushBack(art->listaCanciones, nuevaCancion);
-
-        // 3. Procesamiento del Álbum utilizando 'Pair'
         MapPair *parAlbum = (MapPair *)map_search(mapaAlbumes, album_csv);
         album *alb = NULL;
 
         if (parAlbum == NULL) {
-            // El álbum no existe, lo creamos desde cero
             alb = (album *)malloc(sizeof(album));
             strcpy(alb->NombreAlbum, album_csv);
             strcpy(alb->artistaPrincipal, artista_csv);
@@ -474,18 +461,45 @@ void cargarCSV() {
             map_insert(mapaAlbumes, alb->NombreAlbum, alb);
             list_pushBack(art->listaAlbum, alb);
         } else {
-            // El álbum ya existe, extraemos el puntero real desde el valor del Pair
             alb = (album *)parAlbum->value;
         }
         list_pushBack(alb->ListaCanciones, nuevaCancion);
-
-        // 4. Agregar la canción al catálogo global general
         list_pushBack(catalogoGlobalCanciones, nuevaCancion);
     }
-
+//------------------- Lee arcivo de playlist ---------------------
     fclose(archivo);
     generarConexionesDelGrafo();
     puts("\n[Exito] Archivo 'canciones.csv' cargado correctamente.");
+
+    FILE *archivoPL = fopen("playlists.txt", "r");
+    if (archivoPL != NULL) {
+        if (listaPlaylists == NULL) listaPlaylists = list_create();
+        char lineaPL[2048]; 
+        while (fgets(lineaPL, sizeof(lineaPL), archivoPL) != NULL) {
+            lineaPL[strcspn(lineaPL, "\r\n")] = 0; 
+
+            if (strlen(lineaPL) == 0) continue;
+            char *nombrePL = strtok(lineaPL, "|");
+            if (nombrePL == NULL) continue;
+
+            Playlist *nueva = (Playlist *)malloc(sizeof(Playlist));
+            strcpy(nueva->NombrePlaylist, nombrePL);
+            nueva->canciones = list_create();
+
+            char *nombreCancion = strtok(NULL, "|");
+            while (nombreCancion != NULL) {
+                MapPair *par = map_search(mapaCanciones, nombreCancion);
+                if (par != NULL) {
+                    cancion *c = (cancion *)par->value;
+                    list_pushBack(nueva->canciones, c);
+                }
+                nombreCancion = strtok(NULL, "|");
+            }
+            list_pushBack(listaPlaylists, nueva);
+        }
+        fclose(archivoPL);
+        puts("[Exito] Playlists de usuario cargadas correctamente.");
+    }
 }
 
 void limpiarVisitadosDJ() {
@@ -870,9 +884,36 @@ void menuReproducir(){
         }while(opcion != '5');
 }
 
+void guardarPlaylists() {
+    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+        return;
+    }
+    FILE *archivo = fopen("playlists.txt", "w");
+    if (archivo == NULL) {
+        puts("[Error] No se pudo crear el archivo para guardar las playlists.");
+        return;
+    }
+
+    Playlist *p = (Playlist *)list_first(listaPlaylists);
+    while (p != NULL) {
+        fprintf(archivo, "%s", p->NombrePlaylist);
+        if (p->canciones != NULL) {
+            cancion *c = (cancion *)list_first(p->canciones);
+            while (c != NULL) {
+                fprintf(archivo, "|%s", c->Nombre);
+                c = (cancion *)list_next(p->canciones);
+            }
+        }
+        fprintf(archivo, "\n");
+        p = (Playlist *)list_next(listaPlaylists);
+    }
+    fclose(archivo);
+    puts("[Exito] Playlists guardadas correctamente.");
+}
+
 int main(){
-  srand(time(NULL)); //nuevo
-  int opcion; //nuevo 
+  srand(time(NULL)); 
+  int opcion; 
   limpiarPantalla();
     puts("Iniciando componentes de MoodTico...\n");
     crearUsuario();
@@ -886,28 +927,30 @@ int main(){
     scanf(" %d", &opcion);
 
     switch (opcion) {
-        case 1: // Mostrar listocas
+        case 1: 
             menuListas();
             break;
-        case 2: // Buscar
+        case 2: 
             menuBuscar();
             break;
-        case 3: // Reproducir
+        case 3: 
             menuReproducir();
             break;
-        case 4: // Crear playlists
+        case 4: 
             crearPlaylist();
             break;
         case 5:
             menuDjMatico(); 
             break;
-        case 6: // Estado de ánimo y recomendaciones
+        case 6: 
             recomendarPorEstadoDeAnimo();
             break;
         case 7:
             menuMeGusta();
             break;
-        case 8: // Salir
+        case 8: 
+            //leer lista de playlisty guardar en un archivo
+            guardarPlaylists();
             puts("\nSaliendo de MoodTico.");
             break;
     }    
