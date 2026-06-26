@@ -836,7 +836,7 @@ void menuReproducir(){
 
         switch(opcion){
             case '1':{
-                printf("Ingrese el nombre de la cancion: ");
+                printf("Ingrese el nombre de la canción: ");
                 scanf(" %99[^\n]", busqueda);
                 while(getchar() != '\n');
 
@@ -844,16 +844,16 @@ void menuReproducir(){
                 if(par != NULL){
                     cancion *c = (cancion *)par -> value;
                     list_pushBack(colaReproduccion, c);
-                    printf("Cancion agregada correctamente a la cola\n");
+                    printf("Canción agregada correctamente a la cola\n");
                 }
                 else{
-                    puts("cancion no encontrada");
+                    puts("canción no encontrada");
                 }
                 break;
             }
             case '2':{
                 if(list_first(colaReproduccion) == NULL){
-                    puts("La cola esta vacia.");
+                    puts("La cola esta vacía.");
                 }
                 else{
                     if(actual != NULL){
@@ -861,24 +861,47 @@ void menuReproducir(){
                     }
                     actual = (cancion *)list_popFront(colaReproduccion);
                     puts("\n========== REPRODUCIENDO ==========");
-                    printf("Cancion : %s\n",actual->Nombre);
+                    printf("Canción : %s\n",actual->Nombre);
                     printf("Artista : %s\n",(char *)list_first(actual->listaArtistas));
                     printf("Album   : %s\n",actual->album);
                 }
                 break;
             }
             case '3':{
-                
+                if(list_first(historialCanciones) == NULL){
+                    puts("No existen canciones anteriores.");
+                }
+                else{
+                    if(actual != NULL){
+                        list_pushFront(colaReproduccion, actual);
+                    }
+                    actual = (cancion *)list_popFront(historialCanciones);
+                    puts("\n Reproduciendo... \n");
+                    printf("Canción : %s\n",actual->Nombre);
+                    printf("Artista : %s\n",(char *)list_first(actual->listaArtistas));
+                    printf("Album   : %s\n",actual->album);
+                }
+                break;
             }
             case '4':{
-                
+                if(list_first(colaReproduccion) == NULL){
+                    puts("La cola esta vacía.");
+                }
+                else{
+                    puts("\n ----- COLA DE REPRODUCCIÓN ----- \n");
+                    cancion *c = (cancion *)list_first(colaReproduccion);
+                    while(c != NULL){
+                        printf("- %s\n", c -> Nombre);
+                        c = (cancion *)list_next(colaReproduccion);
+                    }
+                }
+                break;
             }
             case '5':{
                 break;
             }
         }
         if(opcion != '5'){
-            puts("Opcion invalida");
             presioneTeclaParaContinuar();
         }    
         }while(opcion != '5');
