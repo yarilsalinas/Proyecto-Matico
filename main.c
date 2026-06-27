@@ -75,7 +75,7 @@ void generarSecuenciaBFS();
 void menuDjMatico();
 // ==========================================
 
-int is_equal_string(void * key1, void * key2) {
+int is_equal_string(void * key1, void * key2) { // compara strings
     if (key1 == NULL || key2 == NULL) return 0; 
     if (strcmp((char*)key1, (char*)key2) == 0) {
         return 1; 
@@ -100,9 +100,9 @@ void mostrarMenuPrincipal() {
 
 void menuMeGusta(){
     limpiarPantalla();
-    char opcion;
-    char busqueda[100];
-    int nuevoEstado;
+    char opcion; //opcion elegida por el usuario
+    char busqueda[100]; //elemento a buscar
+    int nuevoEstado; // valoracion 1, -1
     do{
         puts("=====================");
         puts("Seleccione categoría ");
@@ -113,62 +113,62 @@ void menuMeGusta(){
         puts("4) Volver al menu principal");
         printf("Ingrese su opcion: ");
         scanf(" %c", &opcion);
-        if (opcion >= '1' && opcion <= '3') { 
+        if (opcion >= '1' && opcion <= '3') {  //opcion valida
             do {
                 printf("Ingrese 1 para 'Me Gusta' o -1 para 'No Me Gusta': ");
                 if (scanf("%d", &nuevoEstado) != 1) {
                     while(getchar() != '\n'); 
                     nuevoEstado = 0;
                 }
-                if (nuevoEstado != 1 && nuevoEstado != -1) {
+                if (nuevoEstado != 1 && nuevoEstado != -1) { // valoracion valida
                     puts("Valor no valido. Por favor intente de nuevo.");
                 }
             } while (nuevoEstado != 1 && nuevoEstado != -1);
         }
         switch (opcion) {
-        case '1':
+        case '1': //cancion
             puts("Escriba Nombre de la cancion:  ");
             scanf(" %99[^\n]", busqueda);
             while(getchar() != '\n');
             
-            MapPair *par = map_search(mapaCanciones, busqueda);
+            MapPair *par = map_search(mapaCanciones, busqueda); // busca la cancion en el mapa
             if(par != NULL){
                     cancion *c = (cancion *)par -> value;
-                    c->meGusta = nuevoEstado;
+                    c->meGusta = nuevoEstado; // actualiza la preferencia
                     printf("Cancion '%s' actualizada correctamente.\n", c->Nombre);
                     break;
             } else{
                 puts("Cancion no encontrada.");
             }
         break;
-            case '2':
+            case '2'://Artista
                 puts("Escriba Nombre del artista: ");
                 scanf(" %99[^\n]", busqueda);
                 while(getchar() != '\n');
 
-                MapPair *parArtista = (MapPair *)map_search(mapaArtistas, busqueda);
+                MapPair *parArtista = (MapPair *)map_search(mapaArtistas, busqueda);//busca el artista en el mapa
                 if (parArtista != NULL) {
                     artista *artistaEncontrado = (artista *)parArtista->value;
-                    artistaEncontrado->meGusta = nuevoEstado; 
+                    artistaEncontrado->meGusta = nuevoEstado; //actualiza la preferencia
                     printf("Valoracion actualizada para el artista '%s'.\n", busqueda);
                 } else {
                     puts("Artista no encontrado.");
                 }
             break;
-            case '3':  
+            case '3': //album
                 puts("Escriba Nombre del album: ");
                 scanf(" %99[^\n]", busqueda);
                 getchar();           
-                MapPair *parAlbum = (MapPair *)map_search(mapaAlbumes, busqueda);
+                MapPair *parAlbum = (MapPair *)map_search(mapaAlbumes, busqueda);//busca el album en el mapa
                 if (parAlbum != NULL) {
                     album *albumEncontrado = (album *)parAlbum->value;
-                    albumEncontrado->meGusta = nuevoEstado; 
+                    albumEncontrado->meGusta = nuevoEstado; //actualiza preferencia
                     printf("Valoracion actualizada para el album '%s'.\n", busqueda);
                 } else {
                     puts("Album no encontrado.");
                 }
             break;
-        case '4': 
+        case '4': //vuelve al menu
         break;
         }    
         if (opcion != '4') {
@@ -184,24 +184,24 @@ void crearUsuario() {
   puts("==========================================");
 
   if (listaUsuarios == NULL)
-    listaUsuarios = list_create();
+    listaUsuarios = list_create(); //crea lista de usuario
 
-  Usuario *nuevoUsuario = (Usuario *)malloc(sizeof(Usuario));
-  if (nuevoUsuario == NULL) {
+  Usuario *nuevoUsuario = (Usuario *)malloc(sizeof(Usuario)); // reserva memoria para el nuevo usuario
+  if (nuevoUsuario == NULL) { //verifica la memoria
     puts("Error: no se pudo reservar memoria para el usuario.");
     return;
   }
 
   printf("Ingrese nombre de usuario: ");
   scanf(" %99[^\n]", nuevoUsuario->NombreUsuario);
-  if (strlen(nuevoUsuario->NombreUsuario) == 0) {
+  if (strlen(nuevoUsuario->NombreUsuario) == 0) { //verifica que no este vacio
     puts("Error: el nombre de usuario no puede estar vacío.");
     free(nuevoUsuario);
     return;
   }
 
   Usuario *u = (Usuario *)list_first(listaUsuarios);
-  while (u != NULL) {
+  while (u != NULL) { // recorre la lista para evitar usuarios repetidos
     if (strcmp(u->NombreUsuario, nuevoUsuario->NombreUsuario) == 0) {
       puts("Error: ya existe un usuario con ese nombre.");
       free(nuevoUsuario);
@@ -210,7 +210,7 @@ void crearUsuario() {
     u = (Usuario *)list_next(listaUsuarios);
   }
 
-  nuevoUsuario->ListaAlbumes = list_create();
+  nuevoUsuario->ListaAlbumes = list_create(); 
   list_pushBack(listaUsuarios, nuevoUsuario);
 
   printf("Usuario '%s' creado exitosamente.\n", nuevoUsuario->NombreUsuario);
@@ -227,11 +227,11 @@ void crearPlaylist() {
         return;
     }
 
-    if (listaPlaylists == NULL)
+    if (listaPlaylists == NULL) // crea lista de playlist
         listaPlaylists = list_create();
 
-    Playlist *nueva = (Playlist *)malloc(sizeof(Playlist));
-    if (nueva == NULL) {
+    Playlist *nueva = (Playlist *)malloc(sizeof(Playlist)); // reserva memoria
+    if (nueva == NULL) { // comprueba memoria
         puts("[Error] No se pudo reservar memoria.");
         return;
     }
@@ -240,14 +240,14 @@ void crearPlaylist() {
     scanf(" %99[^\n]", nueva->NombrePlaylist);
     while(getchar() != '\n');
 
-    if (strlen(nueva->NombrePlaylist) == 0) {
+    if (strlen(nueva->NombrePlaylist) == 0) { //verificar que el nombre no este vacio
         puts("[Error] El nombre no puede estar vacío.");
         free(nueva);
         return;
     }
 
     Playlist *p = (Playlist *)list_first(listaPlaylists);
-    while (p != NULL) {
+    while (p != NULL) { // comprueba que no hayan playlist con el mismo nombre
         if (strcmp(p->NombrePlaylist, nueva->NombrePlaylist) == 0) {
             puts("[Error] Ya existe una playlist con ese nombre.");
             free(nueva);
@@ -256,36 +256,36 @@ void crearPlaylist() {
         p = (Playlist *)list_next(listaPlaylists);
     }
 
-    nueva->canciones = list_create();
+    nueva->canciones = list_create(); // crea la playlist
 
-    char respuesta = 's';
+    char respuesta = 's'; // Permite seguir agregando mas canciones
     while (respuesta == 's' || respuesta == 'S') {
         char nombreCancion[100];
         printf("\nIngrese el nombre de la cancion a agregar: ");
         scanf(" %99[^\n]", nombreCancion);
         while(getchar() != '\n');
 
-        MapPair *par = map_search(mapaCanciones, nombreCancion);
-        if (par != NULL) {
+        MapPair *par = map_search(mapaCanciones, nombreCancion);//busca la cancion en el mapa
+        if (par != NULL) { 
             cancion *c = (cancion *)par->value;
-            list_pushBack(nueva->canciones, c);
+            list_pushBack(nueva->canciones, c); // agrega la cancion a la playlist
             printf("[OK] '%s' agregada a la playlist.\n", c->Nombre);
         } else {
             puts("[Error] Cancion no encontrada. Verifique el nombre.");
         }
 
-        printf("Desea agregar otra cancion? (s/n): ");
+        printf("Desea agregar otra cancion? (s/n): "); 
         scanf(" %c", &respuesta);
         while(getchar() != '\n');
     }
 
-    if (list_size(nueva->canciones) == 0) {
+    if (list_size(nueva->canciones) == 0) { // si no se agregan canciones no se guarda nuevamente
         puts("[Aviso] La playlist quedo vacia y no fue guardada.");
         free(nueva);
         return;
     }
 
-    list_pushBack(listaPlaylists, nueva);
+    list_pushBack(listaPlaylists, nueva); //guarda la playlist 
     printf("\n[Exito] Playlist '%s' creada con %d cancion(es).\n",
            nueva->NombrePlaylist, list_size(nueva->canciones));
 }
@@ -296,33 +296,33 @@ void eliminarCancionPlaylist() {
     puts("      Eliminar cancion de playlist        ");
     puts("==========================================");
 
-    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) { //compueba si existen playlist
         puts("[Error] No hay playlists creadas.");
         return;
     }
 
-    char nombrePlaylist[100];
+    char nombrePlaylist[100]; // nombre de la playlist a modificar
     printf("Ingrese el nombre de la playlist: ");
     scanf(" %99[^\n]", nombrePlaylist);
     while(getchar() != '\n');
 
     Playlist *p = (Playlist *)list_first(listaPlaylists);
-    while (p != NULL) {
+    while (p != NULL) { // busca por toda la lista  si la playlist existe
         if (strcmp(p->NombrePlaylist, nombrePlaylist) == 0) break;
         p = (Playlist *)list_next(listaPlaylists);
     }
 
-    if (p == NULL) {
+    if (p == NULL) { // si no existe se retorna
         puts("[Error] Playlist no encontrada.");
         return;
     }
 
-    if (list_size(p->canciones) == 0) {
+    if (list_size(p->canciones) == 0) { // si no tiene elementos se retorna
         puts("[Aviso] La playlist no tiene canciones.");
         return;
     }
 
-    puts("\nCanciones en la playlist:");
+    puts("\nCanciones en la playlist:"); //muestra las canciones 
     cancion *c = (cancion *)list_first(p->canciones);
     while (c != NULL) {
         printf("  - %s\n", c->Nombre);
@@ -330,14 +330,14 @@ void eliminarCancionPlaylist() {
     }
 
     char nombreCancion[100];
-    printf("\nIngrese el nombre de la cancion a eliminar: ");
+    printf("\nIngrese el nombre de la cancion a eliminar: "); 
     scanf(" %99[^\n]", nombreCancion);
     while(getchar() != '\n');
 
     c = (cancion *)list_first(p->canciones);
-    while (c != NULL) {
+    while (c != NULL) { // busca la cancion a eliminar en la playlist
         if (strcmp(c->Nombre, nombreCancion) == 0) {
-            list_popCurrent(p->canciones);
+            list_popCurrent(p->canciones); //elimina el elemento
             printf("[OK] '%s' eliminada de la playlist '%s'.\n", nombreCancion, p->NombrePlaylist);
             return;
         }
@@ -353,14 +353,14 @@ void eliminarPlaylist() {
     puts("           Eliminar playlist              ");
     puts("==========================================");
 
-    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+    if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) { // compueba que hay playlist
         puts("[Error] No hay playlists creadas.");
         return;
     }
 
     puts("Playlists disponibles:");
     Playlist *p = (Playlist *)list_first(listaPlaylists);
-    while (p != NULL) {
+    while (p != NULL) { // muestra los nombres de las playlist existentes
         printf("  - %s (%d cancion(es))\n", p->NombrePlaylist, list_size(p->canciones));
         p = (Playlist *)list_next(listaPlaylists);
     }
@@ -371,12 +371,12 @@ void eliminarPlaylist() {
     while(getchar() != '\n');
 
     p = (Playlist *)list_first(listaPlaylists);
-    while (p != NULL) {
+    while (p != NULL) { // busca la playlist a eliminar
         if (strcmp(p->NombrePlaylist, nombrePlaylist) == 0) {
-            Playlist *eliminada = (Playlist *)list_popCurrent(listaPlaylists);
+            Playlist *eliminada = (Playlist *)list_popCurrent(listaPlaylists); // elimina de la lista de playlist
             list_clean(eliminada->canciones);
             free(eliminada->canciones);
-            free(eliminada);
+            free(eliminada); //libera la memoria
             printf("[OK] Playlist '%s' eliminada.\n", nombrePlaylist);
             return;
         }
@@ -413,19 +413,19 @@ void menuPlaylist() {
                 eliminarPlaylist();
                 break;
             case 4:
-                if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+                if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) { // verifica que existan elementos
                     puts("No hay playlists creadas en el sistema.");
                 } else {
                     puts("\n--- Lista de Playlists ---");
                     Playlist *p = (Playlist *)list_first(listaPlaylists);
-                    while (p != NULL) {
+                    while (p != NULL) {//muestra todas las playlist creadas
                         printf("Playlist: %s (%d cancion(es))\n", p->NombrePlaylist, list_size(p->canciones));
                         p = (Playlist *)list_next(listaPlaylists);
                     }
                 }
                 break;
             case 5:
-                break;
+                break; // regresa al menu principal
         }
         if (opcion != 5)
             presioneTeclaParaContinuar();
@@ -449,7 +449,7 @@ void recomendarPorEstadoDeAnimo() {
     }
 
     int estado;
-    do {
+    do {// solicita el estado de animo y comprueba que sea valido
         printf("Ingrese su estado de animo (1-3): ");
         if (scanf("%d", &estado) != 1) {
             while(getchar() != '\n');
@@ -480,8 +480,8 @@ void recomendarPorEstadoDeAnimo() {
 
     int encontradas = 0;
     cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
-    while (c != NULL) {
-        if (c->emocion == estado) {
+    while (c != NULL) { //recorre todas las canciones del catalogo
+        if (c->emocion == estado) { // tomando solo las del estado solicitado
             char *artista = (char *)list_first(c->listaArtistas);
 
             int pasaArtista = (strlen(filtroArtista) == 0) ||
@@ -489,7 +489,7 @@ void recomendarPorEstadoDeAnimo() {
             int pasaAlbum   = (strlen(filtroAlbum) == 0) ||
                               (strcmp(c->album, filtroAlbum) == 0);
 
-            if (pasaArtista && pasaAlbum) {
+            if (pasaArtista && pasaAlbum) { // si cumple se muestra en pantalla
                 printf("- %s | Artista: %s | Album: %s\n",
                        c->Nombre, artista, c->album);
                 encontradas++;
@@ -497,7 +497,7 @@ void recomendarPorEstadoDeAnimo() {
         }
         c = (cancion *)list_next(catalogoGlobalCanciones);
     }
-
+    //Muestra los resultados de la busqueda
     if (encontradas == 0) {
         puts("[Aviso] No se encontraron canciones con esos filtros.");
     } else {
@@ -509,11 +509,11 @@ void generarConexionesDelGrafo() {
     if (catalogoGlobalCanciones == NULL) return;
     int total = 0;
     cancion *c = (cancion *)list_first(catalogoGlobalCanciones);
-    while (c != NULL) {
+    while (c != NULL) { // cuenta la cantidad de canciones del csv
         total++;
         c = (cancion *)list_next(catalogoGlobalCanciones);
     }
-    cancion **arreglo = (cancion **)malloc(total * sizeof(cancion *));
+    cancion **arreglo = (cancion **)malloc(total * sizeof(cancion *)); // crea un arreglo para acceder por indices
     int i = 0;
     c = (cancion *)list_first(catalogoGlobalCanciones);
     while (c != NULL) {
@@ -521,15 +521,15 @@ void generarConexionesDelGrafo() {
         i++;
         c = (cancion *)list_next(catalogoGlobalCanciones);
     }
-    for (int j = 0; j < total; j++) {
+    for (int j = 0; j < total; j++) { // compara cada cancion con todas las demas
         for (int k = 0; k < total; k++) {
-            if (j != k && arreglo[j]->emocion == arreglo[k]->emocion) {
-                list_pushBack(arreglo[j]->cancionesCompatibles, arreglo[k]);
+            if (j != k && arreglo[j]->emocion == arreglo[k]->emocion) {//evita compararse consigo misma
+                list_pushBack(arreglo[j]->cancionesCompatibles, arreglo[k]);//crea una arista
             }
         }
     }
 
-    free(arreglo);
+    free(arreglo); // libera la memoria del arreglo auxiliar
 }
 
 void cargarCSV() {
@@ -655,7 +655,7 @@ void limpiarVisitadosDJ() {
     if (catalogoGlobalCanciones == NULL) return;
     
     cancion *actual = (cancion *)list_first(catalogoGlobalCanciones);
-    while (actual != NULL) {
+    while (actual != NULL) { //recorre todas las canciones marcandolas como no visitadas
         actual->visitado = 0;
         actual = (cancion *)list_next(catalogoGlobalCanciones);
     }
@@ -667,24 +667,24 @@ void generarSecuenciaBFS() {
         return;
     }
     
-    limpiarVisitadosDJ();
+    limpiarVisitadosDJ();//reinicia el estado de cada cancion a no visitados
     if (colaReproduccionDJ == NULL) {
-        colaReproduccionDJ = list_create();
+        colaReproduccionDJ = list_create();// si la cola no existe, la crea
     } else {
         while (list_first(colaReproduccionDJ) != NULL) {
-            list_popFront(colaReproduccionDJ);
+            list_popFront(colaReproduccionDJ);//si existe vacia la cola anterior.
         }
     }
 
     List *colaBFS = list_create();
-    list_pushBack(colaBFS, cancionActualDJ);
-    cancionActualDJ->visitado = 1;
+    list_pushBack(colaBFS, cancionActualDJ); //inserta la cancion inicial
+    cancionActualDJ->visitado = 1;//la marca como visitada
 
     puts("\n==========================================");
     puts("      SETLIST GENERADO POR DJ MATICO     ");
     puts("==========================================");
 
-    while (list_first(colaBFS) != NULL) {
+    while (list_first(colaBFS) != NULL) { 
         cancion *sonando = (cancion *)list_popFront(colaBFS); 
         printf("-> %s | Album: %s \n", sonando->Nombre, sonando->album);
         
@@ -808,7 +808,7 @@ void menuDjMatico() {
 }
 
 void menuListas() {
-    char opcion;
+    char opcion; //opcion seleccionada por el usuario
     do {
         limpiarPantalla();
         puts("=====================");
@@ -826,7 +826,7 @@ void menuListas() {
             case '1':
                 puts("\n--- Lista de Canciones ---");
                 MapPair *parC = map_first(mapaCanciones);
-                while (parC != NULL) {
+                while (parC != NULL) {//Muestra todas las canciones
                     cancion *c = (cancion *)parC->value;
                     printf("ID: %s | Nombre: %s | Album: %s\n", c->ID, c->Nombre, c->album);
                     parC = map_next(mapaCanciones);
@@ -835,7 +835,7 @@ void menuListas() {
             case '2':
                 puts("\n--- Lista de Artistas ---");
                 MapPair *parA = map_first(mapaArtistas);
-                while (parA != NULL) {
+                while (parA != NULL) {//muestra todos los artistas
                     artista *a = (artista *)parA->value;
                     printf("Artista: %s\n", a->NombreArtista);
                     parA = map_next(mapaArtistas);
@@ -844,16 +844,16 @@ void menuListas() {
             case '3':
                 puts("\n--- Lista de Albumes ---");
                 MapPair *parAl = map_first(mapaAlbumes);
-                while (parAl != NULL) {
+                while (parAl != NULL) {//muestra todos los albumes
                     album *al = (album *)parAl->value;
                     printf("Album: %s | Artista: %s\n", al->NombreAlbum, al->artistaPrincipal);
                     parAl = map_next(mapaAlbumes);
                 }
                 break;
             case '4':
-                if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {
+                if (listaPlaylists == NULL || list_size(listaPlaylists) == 0) {//verifica si existe playlist
                     puts("No hay playlists creadas en el sistema.");
-                } else {
+                } else {//muestra todas las playlist creadas
                     puts("\n--- Lista de Playlists ---");
                     Playlist *p = (Playlist *)list_first(listaPlaylists);
                     while (p != NULL) {
