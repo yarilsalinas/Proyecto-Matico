@@ -892,13 +892,11 @@ void menuBuscar(){
         printf("Ingrese su opcion: ");
         scanf(" %c", &opcion);
         while(getchar() != '\n');
-
         switch(opcion) {
-
             case '1': {
                 printf("Ingrese nombre de la cancion: ");
                 scanf(" %99[^\n]", busqueda);
-                while(getchar() != '\n');
+                while(getchar() != '\n'); //limpiar
 
                 MapPair *par = map_search(mapaCanciones, busqueda);
                 if(par != NULL){
@@ -924,7 +922,7 @@ void menuBuscar(){
                     printf("Artista: %s\n", a -> NombreArtista);
                     puts("\n Canciones: \n");
                     cancion *c = (cancion *)list_first(a -> listaCanciones);
-                    while(c != NULL){
+                    while(c != NULL){ // mostrar las canciones del artista
                         printf(" - %s\n", c -> Nombre);
                         c = (cancion *)list_next(a -> listaCanciones);;
                     }
@@ -939,12 +937,12 @@ void menuBuscar(){
                     scanf(" %99[^\n]", busqueda);
                     while(getchar() != '\n');
                     MapPair *par = map_search(mapaAlbumes, busqueda);
-                    if(par != NULL) {
+                    if(par != NULL) { 
                         album *a = (album *)par->value;
                         printf("\n--- ALBUM ENCONTRADO ---\n");
                         printf("Album: %s\n", a->NombreAlbum);
                         printf("Artista principal: %s\n", a->artistaPrincipal);
-                        puts("\nCanciones:");
+                        puts("\nCanciones:"); // mostar las canciones del album
                         cancion *c = (cancion *)list_first(a->ListaCanciones);
                         while(c != NULL) {
                             printf("- %s\n", c->Nombre);
@@ -991,7 +989,7 @@ void menuReproducir(){
                 MapPair *par = map_search(mapaCanciones, busqueda);
                 if(par != NULL){
                     cancion *c = (cancion *)par -> value;
-                    list_pushBack(colaReproduccion, c);
+                    list_pushBack(colaReproduccion, c); 
                     printf("Canción agregada correctamente a la cola\n");
                 }
                 else{
@@ -1005,7 +1003,7 @@ void menuReproducir(){
                 }
                 else{
                     if(actual != NULL){
-                        list_pushFront(historialCanciones, actual);
+                        list_pushFront(historialCanciones, actual); //agregar a las ya escuchadas
                     }
                     actual = (cancion *)list_popFront(colaReproduccion);
                     puts("\n========== REPRODUCIENDO ==========");
@@ -1023,7 +1021,7 @@ void menuReproducir(){
                     if(actual != NULL){
                         list_pushFront(colaReproduccion, actual);
                     }
-                    actual = (cancion *)list_popFront(historialCanciones);
+                    actual = (cancion *)list_popFront(historialCanciones); // sacar de la lista de canciones ya escuchadas
                     puts("\n Reproduciendo... \n");
                     printf("Canción : %s\n",actual->Nombre);
                     printf("Artista : %s\n",(char *)list_first(actual->listaArtistas));
@@ -1038,7 +1036,7 @@ void menuReproducir(){
                 else{
                     puts("\n ----- COLA DE REPRODUCCIÓN ----- \n");
                     cancion *c = (cancion *)list_first(colaReproduccion);
-                    while(c != NULL){
+                    while(c != NULL){ //recorrer y mostrar las canciones 
                         printf("- %s\n", c -> Nombre);
                         c = (cancion *)list_next(colaReproduccion);
                     }
