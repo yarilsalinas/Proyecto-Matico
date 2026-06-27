@@ -1065,12 +1065,12 @@ void guardarPlaylists() {
         return;
     }
     Playlist *p = (Playlist *)list_first(listaPlaylists);
-    while (p != NULL) {
+    while (p != NULL) { // recorrer la lista de playlist
         fprintf(archivo, "%s", p->NombrePlaylist);
         if (p->canciones != NULL) {
             cancion *c = (cancion *)list_first(p->canciones);
             while (c != NULL) {
-                fprintf(archivo, "|%s", c->Nombre);
+                fprintf(archivo, "|%s", c->Nombre); // se separa con un | 
                 c = (cancion *)list_next(p->canciones);
             }
         }
@@ -1119,7 +1119,6 @@ int main(){
             menuMeGusta();
             break;
         case 8: 
-            //leer lista de playlisty guardar en un archivo
             guardarPlaylists();
             puts("\nSaliendo de MoodTico.");
             break;

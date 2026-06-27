@@ -13,7 +13,7 @@ Una vez compilado, ejecuta el programa con:
  ````
 
 
- ## funciones principales:
+## funciones principales:
 
 ### menuListas:
 Abre un menu que da 4 opciones, cada una para un tipo de elemento y una para volver al menu principal, dependiendo del tipo de elemento de despliega la totalidad de elementos de ese tipo y se muestran por pantalla al usuario
@@ -21,7 +21,8 @@ Abre un menu que da 4 opciones, cada una para un tipo de elemento y una para vol
 ### menuBuscar:
 Abre un menu con 3 opciones, cada una para hacer una busqueda especifica ya sea para una cancion, un artista mas todas las canciones de ese artista o algun album en especifico que me muestra el dueño de el album mas las canciones que esten compuestas dentro.
 
- ### menuReproducir:
+### menuReproducir:
+Abre un menú de 4 opciones: Agregar una canción a la cola, reproducir la canción siguiente,  reproducir la canción anterior y visualizar la cola de reproducción. Ademas en cada opción muestra los datos de la cancion
 
 ### menuPlaylist:
 Abre un menu que da 4 opciones, crear una playlist al gusto propio del usuario, eliminar canciones dentro de la playlist , eliminar toda la playlist, y ver la playlist con las canciones que estan dentro.
@@ -59,7 +60,7 @@ Lee la lista de playlist creadas y se guarda en una linea de un archivo el nombr
 Función mostrarMenuPrincipal, menuMeGusta, menuListas, guardarPlaylists, ademas crear el esqueleto del main y agregar la carpeta tdas, revisar el programa y comentar que se puede agregar y que cosas no funcionan correctamente.
 
 ### Sergio Torres:
-Función MenuBuscar, MenuReproducir, trabajo constantemente en coordinación del trabajo, además de colaborar activamente en la presentacion y 
+Función MenuBuscar, MenuReproducir, trabajo constantemente en coordinación del trabajo, además de colaborar activamente en la presentacion e informe y hacer prueba de usuario.
 
 ### Sebastian Rojas:
 nexo con el docente además de las funciones crearPlaylist, CrearUsuario y el Sistema De Recomendación Por Estado De Ánimo.
