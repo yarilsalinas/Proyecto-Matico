@@ -717,7 +717,7 @@ void menuDjMatico() {
                 if (catalogoGlobalCanciones == NULL || list_first(catalogoGlobalCanciones) == NULL) {
                     puts("\n[Error] No hay canciones cargadas en el sistema.");
                 } else {
-                    int totalCanciones = 150; 
+                    int totalCanciones = list_size(catalogoGlobalCanciones); 
                     int indiceAzar = rand() % totalCanciones;
                     cancionActualDJ = (cancion *)list_first(catalogoGlobalCanciones);
                     for (int i = 0; i < indiceAzar; i++) {
@@ -769,7 +769,7 @@ void menuDjMatico() {
                             list_popFront(colaReproduccionDJ);
                         }
                     }
-                    int totalCanciones = 150;
+                    int totalCanciones = list_size(catalogoGlobalCanciones);
                     cancion *nuevaCancion = NULL;
                     do {
                         int indiceAzar = rand() % totalCanciones;
