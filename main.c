@@ -32,7 +32,7 @@ char artistaPrincipal [100];
 List *ListaCanciones;
 int meGusta;
 } album;
-//-----------------
+//----------------- a
 typedef struct{
 char NombreUsuario[100];
 List *ListaAlbumes;
