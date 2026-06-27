@@ -222,6 +222,11 @@ void crearPlaylist() {
     puts("           Crear nueva playlist           ");
     puts("==========================================");
 
+    if (mapaCanciones == NULL) {
+        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
+        return;
+    }
+
     if (listaPlaylists == NULL)
         listaPlaylists = list_create();
 
@@ -437,6 +442,11 @@ void recomendarPorEstadoDeAnimo() {
     puts("  2 - Triste / Melancolico");
     puts("  3 - Tranquilo / Relajado");
     puts("==========================================");
+
+    if (catalogoGlobalCanciones == NULL) {
+        puts("[Error] No hay canciones cargadas. Carga el CSV primero.");
+        return;
+    }
 
     int estado;
     do {
@@ -954,8 +964,8 @@ void menuBuscar(){
 }
 
 void menuReproducir(){
-    List *colaReproduccion = list_create();
-    List *historialCanciones = list_create();
+    if (colaReproduccion == NULL)    colaReproduccion    = list_create();
+    if (historialCanciones == NULL)  historialCanciones  = list_create();
     cancion *actual = NULL;
     char opcion;
     char busqueda[100];
